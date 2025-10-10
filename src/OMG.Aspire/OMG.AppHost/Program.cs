@@ -1,6 +1,7 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
 var sql = builder.AddSqlServer("sql-server-db-omg")
+                 .WithImageTag("2022-latest")
                  .WithLifetime(ContainerLifetime.Persistent);
 
 var db = sql.AddDatabase("database", "OMGdb");
