@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.9">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -16,5 +17,6 @@
     <ProjectReference Include="..\OMG.Aspire\OMG.ServiceDefaults\OMG.ServiceDefaults.csproj" />
     <ProjectReference Include="..\OMG.Domain\OMG.Domain.csproj" />
     <ProjectReference Include="..\OMG.Repository\OMG.Repository.csproj" />
+    <ProjectReference Include="..\OMG.UserIdentity\OMG.UserIdentity.csproj" />
   </ItemGroup>
 </Project>

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using OMG.Domain.Contracts;
 using OMG.Domain.Contracts.Service;
 using OMG.Domain.Services;
 
@@ -15,6 +16,7 @@ public static class DomainDI
         services.AddTransient<IAromaService, AromaService>();
         services.AddTransient<IClienteService, ClienteService>();
         services.AddTransient<IEmbalagemService, EmbalagemService>();
+        services.AddTransient<IAuthService, AuthService>();
 
         return services;
     }

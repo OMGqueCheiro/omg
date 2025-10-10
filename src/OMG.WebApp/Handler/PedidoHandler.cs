@@ -5,11 +5,12 @@ using OMG.Domain.Handler;
 using OMG.Domain.Mappers;
 using OMG.Domain.Request;
 using OMG.Domain.ViewModels;
+using OMG.WebApp.Authentication;
 using System.Net.Http.Json;
 
 namespace OMG.WebApp.Handler;
 
-public class PedidoHandler(IHttpClientFactory httpClientFactory) : IPedidoHandler
+public class PedidoHandler(AuthenticatedHttpClientFactory httpClientFactory) : IPedidoHandler
 {
     private readonly HttpClient _client = httpClientFactory.CreateClient(Configuracao.HttpClientNameOMGApi);
 

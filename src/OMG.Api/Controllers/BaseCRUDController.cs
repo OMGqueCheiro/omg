@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OMG.Domain.Base;
 using OMG.Domain.Base.Contract;
@@ -7,6 +8,7 @@ using OMG.Domain.Entities;
 namespace OMG.Api.Controllers
 {
     [ApiController]
+    [Authorize]
     public abstract class BaseCRUDController<IEntity>(IRepositoryEntity<IEntity> repository) : ControllerBase where IEntity : Entity
     {
         private readonly IRepositoryEntity<IEntity> _repository = repository;

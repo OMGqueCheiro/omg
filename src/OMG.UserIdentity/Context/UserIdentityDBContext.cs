@@ -1,12 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using OMG.UserIdentity.Entities;
 
-namespace OMG.UserIdentity.Context
+namespace OMG.UserIdentity.Context;
+
+public class UserIdentityDBContext(DbContextOptions<UserIdentityDBContext> options) 
+    : IdentityDbContext<ApplicationUser>(options)
 {
-    public class UserIdentityDBContext
+    protected override void OnModelCreating(ModelBuilder builder)
     {
+        base.OnModelCreating(builder);
+
+        // Renomear tabelas do Identity para português
+        builder.Entity<ApplicationUser>().ToTable("Usuarios");
     }
 }

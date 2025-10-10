@@ -3,6 +3,7 @@ using OMG.Domain.Base.Contract;
 using OMG.Domain.Contracts.Service;
 using OMG.Domain.Entities;
 using OMG.Domain.Request;
+using System.Security.Claims;
 
 namespace OMG.Api.Controllers;
 
@@ -20,7 +21,12 @@ public class PedidoController(IRepositoryEntity<Pedido> repository, IPedidoServi
         {
             return NotFound();
         }
-        await _pedidoService.ChangeStatus(request.idPedido, request.NewStatus);
+
+        // Capturar informações do usuário autenticado
+        var usuarioEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+        var usuarioNome = User.FindFirst("nome")?.Value ?? User.Identity?.Name;
+
+        await _pedidoService.ChangeStatus(request.idPedido, request.NewStatus, usuarioNome, usuarioEmail);
 
         return NoContent();
     }

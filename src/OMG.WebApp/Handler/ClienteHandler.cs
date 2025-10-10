@@ -2,11 +2,12 @@
 using OMG.Domain.Base;
 using OMG.Domain.Entities;
 using OMG.Domain.Handler;
+using OMG.WebApp.Authentication;
 using System.Net.Http.Json;
 
 namespace OMG.WebApp.Handler;
 
-public class ClienteHandler(IHttpClientFactory httpClientFactory) : IClienteHandler
+public class ClienteHandler(AuthenticatedHttpClientFactory httpClientFactory) : IClienteHandler
 {
     private readonly HttpClient _client = httpClientFactory.CreateClient(Configuracao.HttpClientNameOMGApi);
     public async Task<Response<Cliente>> CreateOrUpdate(Cliente cliente) => cliente.Id == 0 ? await Create(cliente) : await Update(cliente);

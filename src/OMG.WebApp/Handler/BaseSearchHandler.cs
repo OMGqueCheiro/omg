@@ -1,11 +1,12 @@
 ﻿using OMG.Domain;
 using OMG.Domain.Base;
 using OMG.Domain.Handler;
+using OMG.WebApp.Authentication;
 using System.Net.Http.Json;
 
 namespace OMG.WebApp.Handler;
 
-public class BaseSearchHandler<TypeReturn>(IHttpClientFactory httpClientFactory) : IBaseSearchHandler<TypeReturn>
+public class BaseSearchHandler<TypeReturn>(AuthenticatedHttpClientFactory httpClientFactory) : IBaseSearchHandler<TypeReturn>
 {
     private readonly HttpClient _client = httpClientFactory.CreateClient(Configuracao.HttpClientNameOMGApi);
     public async Task<Response<IEnumerable<TypeReturn>>> GetAll(string UrlAction)

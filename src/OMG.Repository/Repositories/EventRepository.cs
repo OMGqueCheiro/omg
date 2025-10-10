@@ -8,13 +8,15 @@ public class EventRepository(OMGDbContext context) : IEventRepository
 {
     private readonly OMGDbContext _context = context;
 
-    public async Task EventChangeStatusPedido(int idPedido, EPedidoStatus oldStatus, EPedidoStatus newStatus)
+    public async Task EventChangeStatusPedido(int idPedido, EPedidoStatus oldStatus, EPedidoStatus newStatus, string? usuarioNome = null, string? usuarioEmail = null)
     {
         await _context.EventChangeStatus.AddAsync(new EventChangeStatus
         {
             IdPedido = idPedido,
             OldStatus = oldStatus,
             NewStatus = newStatus,
+            UsuarioNome = usuarioNome,
+            UsuarioEmail = usuarioEmail,
             DataCriacao = DateTime.Now
         });
 

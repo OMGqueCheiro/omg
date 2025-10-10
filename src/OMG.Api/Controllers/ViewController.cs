@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OMG.Domain.Base.Contract;
 using OMG.Domain.Contracts.Repository;
 using OMG.Domain.Entities;
@@ -8,6 +9,7 @@ namespace OMG.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class ViewController(IRepositoryEntity<Pedido> repository, IPedidoRepository pedidoRepository) : ControllerBase
 {
     private readonly IRepositoryEntity<Pedido> _repository = repository;

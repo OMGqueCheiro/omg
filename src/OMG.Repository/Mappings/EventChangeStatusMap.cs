@@ -14,6 +14,7 @@ public class EventChangeStatusMap : IEntityTypeConfiguration<EventChangeStatus>
         builder.Property(x => x.OldStatus).HasMaxLength(250).IsRequired();
         builder.Property(x => x.DataCriacao).IsRequired();
         builder.Property(x => x.IdPedido).IsRequired();
-
+        builder.Property(x => x.UsuarioNome).HasMaxLength(200);
+        builder.Property(x => x.UsuarioEmail).HasMaxLength(200);
     }
 }

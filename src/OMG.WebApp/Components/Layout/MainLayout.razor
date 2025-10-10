@@ -1,4 +1,10 @@
 ﻿@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Authorization
+@using OMG.WebApp.Handler
+@using OMG.WebApp.Authentication
+@inject IAuthHandler AuthHandler
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
 
 <MudThemeProvider Theme="@_theme" IsDarkMode="_isDarkMode" />
 <MudPopoverProvider />
@@ -9,6 +15,15 @@
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         <MudText Typo="Typo.h5" Class="ml-3">OMG que Cheiro</MudText>
         <MudSpacer />
+        <AuthorizeView>
+            <Authorized>
+                <MudText Typo="Typo.body2" Class="mr-2">@context.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value</MudText>
+                <MudIconButton Icon="@Icons.Material.Filled.Logout" Color="Color.Inherit" OnClick="@HandleLogout" Title="Sair" />
+            </Authorized>
+            <NotAuthorized>
+                <MudButton Variant="Variant.Text" Color="Color.Inherit" Href="/login">Login</MudButton>
+            </NotAuthorized>
+        </AuthorizeView>
         <MudIconButton Icon="@(DarkLightModeButtonIcon)" Color="Color.Inherit" OnClick="@DarkModeToggle" />
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
@@ -98,6 +113,13 @@ public string DarkLightModeButtonIcon => _isDarkMode switch
 true => Icons.Material.Rounded.AutoMode,
 false => Icons.Material.Outlined.DarkMode,
 };
+
+private async Task HandleLogout()
+{
+    await AuthHandler.LogoutAsync();
+    await ((CustomAuthenticationStateProvider)AuthStateProvider).NotifyUserLogout();
+    Navigation.NavigateTo("/login");
+}
 }
 
 

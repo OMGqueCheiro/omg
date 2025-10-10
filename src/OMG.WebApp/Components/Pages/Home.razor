@@ -1,7 +1,9 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components
 @using System.ComponentModel.DataAnnotations
 @using OMG.WebApp.Components.Pedido
+@attribute [Authorize]
 @inject IPedidoHandler _pedidoHandler
 @inject IDialogService DialogService
 

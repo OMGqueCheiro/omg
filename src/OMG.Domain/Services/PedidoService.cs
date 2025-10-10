@@ -17,13 +17,13 @@ public class PedidoService(IPedidoRepository pedidoRepository, IEventRepository 
     private readonly IFormatoService _formatoService = formatoService;
     private readonly IEmbalagemService _embalagemService = embalagemService;
 
-    public async Task ChangeStatus(int idPedido, EPedidoStatus newStatus)
+    public async Task ChangeStatus(int idPedido, EPedidoStatus newStatus, string? usuarioNome = null, string? usuarioEmail = null)
     {
         var oldstatus = await _pedidoRepository.GetPedidoStatus(idPedido);
 
         await _pedidoRepository.ChangePedidoStatus(idPedido, newStatus);
 
-        await _eventRepository.EventChangeStatusPedido(idPedido, oldstatus, newStatus);
+        await _eventRepository.EventChangeStatusPedido(idPedido, oldstatus, newStatus, usuarioNome, usuarioEmail);
     }
 
     public async Task<Pedido> CreateNewPedido(NewPedidoRequest newPedidoRequest)
