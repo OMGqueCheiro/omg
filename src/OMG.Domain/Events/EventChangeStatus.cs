@@ -1,5 +1,5 @@
-﻿using OMG.Domain.Base;
-using OMG.Domain.Enum;
+﻿using OMG.Core.Base;
+using OMG.Core.Enum;
 
 namespace OMG.Domain.Events;
 

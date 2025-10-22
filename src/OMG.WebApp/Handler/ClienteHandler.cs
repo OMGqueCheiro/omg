@@ -1,20 +1,25 @@
-﻿using OMG.Domain;
-using OMG.Domain.Base;
-using OMG.Domain.Entities;
-using OMG.Domain.Handler;
-using OMG.WebApp.Authentication;
+﻿using OMG.Core.Base;
+using OMG.Core.Entities;
+using OMG.Core.Handler;
 using System.Net.Http.Json;
 
 namespace OMG.WebApp.Handler;
 
-public class ClienteHandler(AuthenticatedHttpClientFactory httpClientFactory) : IClienteHandler
+public class ClienteHandler : IClienteHandler
 {
-    private readonly HttpClient _client = httpClientFactory.CreateClient(Configuracao.HttpClientNameOMGApi);
+    private readonly HttpClient _httpClient;
+
+    public ClienteHandler(HttpClient httpClient)
+    {
+        _httpClient = httpClient;
+    }
+    
     public async Task<Response<Cliente>> CreateOrUpdate(Cliente cliente) => cliente.Id == 0 ? await Create(cliente) : await Update(cliente);
 
     private async Task<Response<Cliente>> Update(Cliente cliente)
     {
-        var response = await _client.PutAsJsonAsync($"api/Cliente/{cliente.Id}", cliente);
+        // HttpClient já configurado via DI
+        var response = await _httpClient.PutAsJsonAsync($"api/Cliente/{cliente.Id}", cliente);
 
         if (response.IsSuccessStatusCode)
             return new Response<Cliente>(
@@ -26,7 +31,8 @@ public class ClienteHandler(AuthenticatedHttpClientFactory httpClientFactory) : 
 
     private async Task<Response<Cliente>> Create(Cliente cliente)
     {
-        var response = await _client.PostAsJsonAsync($"api/Cliente", cliente);
+        // HttpClient já configurado via DI
+        var response = await _httpClient.PostAsJsonAsync($"api/Cliente", cliente);
 
         if (response.IsSuccessStatusCode)
             return new Response<Cliente>(

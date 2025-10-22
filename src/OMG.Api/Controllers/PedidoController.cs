@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using OMG.Domain.Base.Contract;
+using OMG.Core.Base.Contract;
 using OMG.Domain.Contracts.Service;
-using OMG.Domain.Entities;
-using OMG.Domain.Request;
+using OMG.Core.Entities;
+using OMG.Core.Request;
 using System.Security.Claims;
 
 namespace OMG.Api.Controllers;

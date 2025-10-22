@@ -6,25 +6,27 @@ using System.Security.Claims;
 namespace OMG.WebApp.Authentication;
 
 public class CustomAuthenticationStateProvider(
-    AuthenticationStateService authStateService,
+    HybridAuthenticationService authStateService,
     ILogger<CustomAuthenticationStateProvider> logger) : AuthenticationStateProvider
 {
-    private readonly AuthenticationStateService _authStateService = authStateService;
+    private readonly HybridAuthenticationService _authStateService = authStateService;
     private readonly ILogger<CustomAuthenticationStateProvider> _logger = logger;
 
     public override Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        _logger.LogInformation("🔍 GetAuthenticationStateAsync - HasToken: {HasToken}", _authStateService.HasToken);
+        _logger.LogInformation("🔍 GetAuthenticationStateAsync - Verificando token");
         
-        if (!_authStateService.HasToken)
+        var token = _authStateService.GetToken();
+        
+        if (string.IsNullOrEmpty(token))
         {
             _logger.LogWarning("⚠️ Sem token, retornando usuário anônimo");
             return Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())));
         }
 
-        _logger.LogInformation("✅ Token encontrado (tamanho: {Length})", _authStateService.Token!.Length);
+        _logger.LogInformation("✅ Token encontrado (tamanho: {Length})", token.Length);
         
-        var claims = ParseClaimsFromJwt(_authStateService.Token!);
+        var claims = ParseClaimsFromJwt(token);
         var identity = new ClaimsIdentity(claims, "jwt");
         var user = new ClaimsPrincipal(identity);
 
@@ -33,12 +35,12 @@ public class CustomAuthenticationStateProvider(
         return Task.FromResult(new AuthenticationState(user));
     }
 
-    public Task NotifyUserAuthentication(string token)
+    public async Task NotifyUserAuthentication(string token)
     {
         _logger.LogInformation("🔔 NotifyUserAuthentication - Token recebido (tamanho: {Length})", token.Length);
         
-        _authStateService.Token = token;
-        _logger.LogInformation("💾 Token salvo no AuthenticationStateService");
+        await _authStateService.SetTokenAsync(token);
+        _logger.LogInformation("💾 Token salvo");
         
         var claims = ParseClaimsFromJwt(token);
         var identity = new ClaimsIdentity(claims, "jwt");
@@ -48,15 +50,13 @@ public class CustomAuthenticationStateProvider(
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
         
         _logger.LogInformation("✅ Autenticação completada");
-        
-        return Task.CompletedTask;
     }
 
-    public Task NotifyUserLogout()
+    public async Task NotifyUserLogout()
     {
         _logger.LogInformation("🚪 Logout iniciado");
         
-        _authStateService.ClearToken();
+        await _authStateService.ClearTokenAsync();
         
         var identity = new ClaimsIdentity();
         var user = new ClaimsPrincipal(identity);
@@ -64,8 +64,6 @@ public class CustomAuthenticationStateProvider(
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
         
         _logger.LogInformation("✅ Logout completado");
-        
-        return Task.CompletedTask;
     }
 
     private IEnumerable<Claim> ParseClaimsFromJwt(string jwt)

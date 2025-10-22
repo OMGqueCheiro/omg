@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using OMG.Domain.Base.Contract;
-using OMG.Domain.Entities;
+using OMG.Core.Base.Contract;
+using OMG.Core.Entities;
 
 namespace OMG.Api.Controllers;
 

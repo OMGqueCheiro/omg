@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\OMG.Aspire\OMG.ServiceDefaults\OMG.ServiceDefaults.csproj" />
     <ProjectReference Include="..\..\OMG.Domain\OMG.Domain.csproj" />
+    <ProjectReference Include="..\..\OMG.Infrastructure\OMG.Infrastructure.csproj" />
     <ProjectReference Include="..\..\OMG.Repository\OMG.Repository.csproj" />
     <ProjectReference Include="..\..\OMG.UserIdentity\OMG.UserIdentity.csproj" />
   </ItemGroup>

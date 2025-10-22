@@ -14,10 +14,14 @@ var api = builder.AddProject<Projects.OMG_Api>("omg-api")
     .WithReference(db)
     .WaitFor(db)
     .WithReference(migrations)
-    .WaitForCompletion(migrations);
+    .WaitForCompletion(migrations)
+    .WithExternalHttpEndpoints();
 
+// Blazor Auto (SSR + WASM) com YARP proxy reverso
+// O Host usa service discovery do Aspire para conectar à API
+// O Client usa proxy reverso do Host (/api/* -> omg-api)
 var webApp = builder.AddProject<Projects.OMG_WebApp>("omg-webapp")
-    .WithReference(api)
+    .WithReference(api)  // Service discovery funciona!
     .WaitFor(api)
     .WithExternalHttpEndpoints();
 

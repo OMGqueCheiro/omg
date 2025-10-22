@@ -1,4 +1,4 @@
-﻿using OMG.Domain.Entities;
+﻿using OMG.Core.Entities;
 
 namespace OMG.Domain.Contracts.Service;
 

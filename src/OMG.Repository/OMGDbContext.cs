@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using OMG.Domain.Entities;
+using OMG.Core.Entities;
 using OMG.Domain.Events;
 
 namespace OMG.Repository;

@@ -1,4 +1,4 @@
-using OMG.Domain.Request;
+using OMG.Core.Request;
 
 namespace OMG.Domain.Contracts;
 

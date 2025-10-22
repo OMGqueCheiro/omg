@@ -1,5 +1,5 @@
 ﻿using OMG.Domain.Contracts.Repository;
-using OMG.Domain.Enum;
+using OMG.Core.Enum;
 using OMG.Domain.Events;
 
 namespace OMG.Repository.Repositories;

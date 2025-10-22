@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using OMG.Domain.Entities;
+using OMG.Core.Entities;
 
 namespace OMG.Repository.Mappings;
 

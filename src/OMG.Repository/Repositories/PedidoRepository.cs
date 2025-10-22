@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using OMG.Domain.Base.Contract;
+using OMG.Core.Base.Contract;
 using OMG.Domain.Contracts.Repository;
-using OMG.Domain.Entities;
-using OMG.Domain.Enum;
+using OMG.Core.Entities;
+using OMG.Core.Enum;
 using OMG.Domain.Queries;
 
 namespace OMG.Repository.Repositories;

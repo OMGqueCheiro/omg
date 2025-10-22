@@ -1,22 +1,26 @@
-﻿using OMG.Domain;
-using OMG.Domain.Base;
-using OMG.Domain.Entities;
-using OMG.Domain.Handler;
-using OMG.Domain.Mappers;
-using OMG.Domain.Request;
-using OMG.Domain.ViewModels;
-using OMG.WebApp.Authentication;
+﻿using OMG.Core.Base;
+using OMG.Core.Entities;
+using OMG.Core.Handler;
+using OMG.Core.Mappers;
+using OMG.Core.Request;
+using OMG.Core.ViewModels;
 using System.Net.Http.Json;
 
 namespace OMG.WebApp.Handler;
 
-public class PedidoHandler(AuthenticatedHttpClientFactory httpClientFactory) : IPedidoHandler
+public class PedidoHandler : IPedidoHandler
 {
-    private readonly HttpClient _client = httpClientFactory.CreateClient(Configuracao.HttpClientNameOMGApi);
+    private readonly HttpClient _httpClient;
+
+    public PedidoHandler(HttpClient httpClient)
+    {
+        _httpClient = httpClient;
+    }
 
     public async Task<Response> ChangeStatus(PedidoChangeStatusRequest request)
     {
-        var response = await _client.PutAsJsonAsync($"api/Pedido/ChangeStatus", request);
+        // HttpClient já configurado via DI
+        var response = await _httpClient.PutAsJsonAsync($"api/Pedido/ChangeStatus", request);
 
         if (response.IsSuccessStatusCode)
             return new Response(code: (int)response.StatusCode);
@@ -28,23 +32,24 @@ public class PedidoHandler(AuthenticatedHttpClientFactory httpClientFactory) : I
     {
         try
         {
-            var response = await _client.GetAsync("api/View/Pedido/Card");
+            // HttpClient já configurado via DI
+            var response = await _httpClient.GetAsync("api/View/Pedido/Card");
 
             if (response.IsSuccessStatusCode)
                 return new Response<IEnumerable<PedidoCard>>(await response.Content.ReadFromJsonAsync<IEnumerable<PedidoCard>>(), (int)response.StatusCode);
 
             return new Response<IEnumerable<PedidoCard>>(code: (int)response.StatusCode, message: await response.Content.ReadAsStringAsync());
         }
-        catch (Exception e)
+        catch (Exception)
         {
-
             throw;
         }
     }
 
     public async Task<Response<PedidoModal>> GetPedidoModal(int Id)
     {
-        var response = await _client.GetAsync($"api/View/Pedido/Modal/{Id}");
+        // HttpClient já configurado via DI
+        var response = await _httpClient.GetAsync($"api/View/Pedido/Modal/{Id}");
 
         if (response.IsSuccessStatusCode)
             return new Response<PedidoModal>(await response.Content.ReadFromJsonAsync<PedidoModal>(), (int)response.StatusCode);
@@ -54,7 +59,8 @@ public class PedidoHandler(AuthenticatedHttpClientFactory httpClientFactory) : I
 
     public async Task<Response<PedidoCard>> NewPedido(NewPedidoRequest request)
     {
-        var response = await _client.PostAsJsonAsync($"api/Pedido", request);
+        // HttpClient já configurado via DI
+        var response = await _httpClient.PostAsJsonAsync($"api/Pedido", request);
 
         if (response.IsSuccessStatusCode)
             return new Response<PedidoCard>(code: (int)response.StatusCode, data: (await response.Content.ReadFromJsonAsync<Pedido>()).ConvertToPedidoCard());

@@ -1,6 +1,5 @@
 using OMG.MigrationWorker;
-using OMG.Repository;
-using OMG.UserIdentity;
+using OMG.Infrastructure.DI;
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.AddServiceDefaults();

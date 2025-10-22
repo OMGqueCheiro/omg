@@ -1,39 +1,42 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">OMG.WebApp.Client</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+﻿
+<div class="pa-4">
+    <div class="mb-6 mt-2">
+        <MudText Typo="Typo.h6" Style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: bold;">
+            Menu
+        </MudText>
     </div>
+    
+    <MudNavMenu Bordered="false" Class="mud-nav-menu-modern">
+        <MudNavLink Href="" 
+                    Match="NavLinkMatch.All" 
+                    Icon="@Icons.Material.Filled.Dashboard"
+                    Style="border-radius: 8px; margin-bottom: 4px;">
+            Dashboard
+        </MudNavLink>
+        <MudNavLink Href="pedidos" 
+                    Match="NavLinkMatch.Prefix" 
+                    Icon="@Icons.Material.Filled.ShoppingCart"
+                    Style="border-radius: 8px; margin-bottom: 4px;">
+            Pedidos
+        </MudNavLink>
+    </MudNavMenu>
 </div>
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-    </nav>
-</div>
-
-@code {
-    private bool collapseNavMenu = true;
-
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
+<style>
+    .mud-nav-menu-modern .mud-nav-link {
+        transition: all 0.3s ease;
     }
-}
+    
+    .mud-nav-menu-modern .mud-nav-link:hover {
+        background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+    }
+    
+    .mud-nav-menu-modern .mud-nav-link.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white !important;
+    }
+    
+    .mud-nav-menu-modern .mud-nav-link.active .mud-icon-root {
+        color: white !important;
+    }
+</style>

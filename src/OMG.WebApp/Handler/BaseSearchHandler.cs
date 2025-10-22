@@ -1,17 +1,22 @@
-﻿using OMG.Domain;
-using OMG.Domain.Base;
-using OMG.Domain.Handler;
-using OMG.WebApp.Authentication;
+﻿using OMG.Core.Base;
+using OMG.Core.Handler;
 using System.Net.Http.Json;
 
 namespace OMG.WebApp.Handler;
 
-public class BaseSearchHandler<TypeReturn>(AuthenticatedHttpClientFactory httpClientFactory) : IBaseSearchHandler<TypeReturn>
+public class BaseSearchHandler<TypeReturn> : IBaseSearchHandler<TypeReturn>
 {
-    private readonly HttpClient _client = httpClientFactory.CreateClient(Configuracao.HttpClientNameOMGApi);
+    private readonly HttpClient _httpClient;
+
+    public BaseSearchHandler(HttpClient httpClient)
+    {
+        _httpClient = httpClient;
+    }
+    
     public async Task<Response<IEnumerable<TypeReturn>>> GetAll(string UrlAction)
     {
-        var response = await _client.GetAsync($"api/{UrlAction}");
+        // HttpClient já configurado via DI
+        var response = await _httpClient.GetAsync($"api/{UrlAction}");
 
         if (response.IsSuccessStatusCode)
             return new Response<IEnumerable<TypeReturn>>(await response.Content.ReadFromJsonAsync<IEnumerable<TypeReturn>>(), (int)response.StatusCode);
@@ -21,7 +26,8 @@ public class BaseSearchHandler<TypeReturn>(AuthenticatedHttpClientFactory httpCl
 
     public async Task<Response<IEnumerable<TypeReturn>>> GetAll(string UrlAction, string Search)
     {
-        var response = await _client.GetAsync($"api/{UrlAction}/search/{Search}");
+        // HttpClient já configurado via DI
+        var response = await _httpClient.GetAsync($"api/{UrlAction}/search/{Search}");
 
         if (response.IsSuccessStatusCode)
             return new Response<IEnumerable<TypeReturn>>(await response.Content.ReadFromJsonAsync<IEnumerable<TypeReturn>>(), (int)response.StatusCode);

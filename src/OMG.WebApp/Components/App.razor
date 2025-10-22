@@ -1,20 +1,57 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+@using OMG.WebApp.Client.Components
 
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <base href="/" />  
+    <base href="/" />
+    <link rel="icon" type="image/png" href="favicon.png" />
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
-    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />  
-    <link rel="icon" type="image/ico" href="favicon.ico" />
-    <HeadOutlet @rendermode="InteractiveServer" />
+    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+    <link href="css/app.css" rel="stylesheet" />
+    <link rel="stylesheet" href="OMG.WebApp.styles.css" />
+    <HeadOutlet />
 </head>
-
 <body>
-    <Routes @rendermode="InteractiveServer" />
+    <Routes />
+    
+    <!-- Loading indicator durante hidratação WASM -->
+    <div id="blazor-error-ui">
+        Ocorreu um erro. Recarregue a página.
+        <a href="" class="reload">Recarregar</a>
+        <a class="dismiss">🗙</a>
+    </div>
+    
     <script src="_framework/blazor.web.js"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+    <script src="_content/Blazored.LocalStorage/blazored-localstorage.js"></script>
+    
+    <script>
+        // Debug localStorage
+        console.log('🔧 [DEBUG] Verificando suporte a localStorage...');
+        if (typeof(Storage) !== "undefined") {
+            console.log('✅ [DEBUG] localStorage está disponível');
+            console.log('📦 [DEBUG] Items no localStorage:', localStorage.length);
+            
+            // Lista todos os itens
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const value = localStorage.getItem(key);
+                console.log(`  - [${key}]: ${value ? value.substring(0, 50) + '...' : 'null'}`);
+            }
+        } else {
+            console.error('❌ [DEBUG] localStorage NÃO está disponível!');
+        }
+        
+        // Remove o loading quando o Blazor WASM carregar completamente
+        Blazor.addEventListener('start', function () {
+            console.log('🚀 [DEBUG] Blazor WASM started');
+        });
+        
+        Blazor.addEventListener('initializers', function () {
+            console.log('🔧 [DEBUG] Blazor initializers running...');
+        });
+    </script>
 </body>
-
 </html>

@@ -1,5 +1,5 @@
-﻿using OMG.Domain.Entities;
-using OMG.Domain.ViewModels;
+﻿using OMG.Core.Entities;
+using OMG.Core.ViewModels;
 
 namespace OMG.Domain.Mappers;
 

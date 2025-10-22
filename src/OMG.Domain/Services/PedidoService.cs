@@ -1,8 +1,8 @@
 ﻿using OMG.Domain.Contracts.Repository;
 using OMG.Domain.Contracts.Service;
-using OMG.Domain.Entities;
-using OMG.Domain.Enum;
-using OMG.Domain.Request;
+using OMG.Core.Entities;
+using OMG.Core.Enum;
+using OMG.Core.Request;
 
 namespace OMG.Domain.Services;
 

@@ -1,0 +1,56 @@
+﻿@using OMG.Core.Handler
+@using OMG.Core.ViewModels
+@inject IDialogService DialogService
+@inject IPedidoHandler _pedidoHandler
+
+<MudPaper Elevation="2" Class="pa-4 my-2 cursor-pointer" 
+          Style="border-radius: 12px; border-left: 4px solid #667eea; background: white; transition: all 0.3s ease;"
+          @ondblclick="OpenPedidoModalAsync">
+    <div class="mb-3">
+        <MudText Typo="Typo.subtitle1" Style="font-weight: 600; color: #667eea;">
+            <MudIcon Icon="@Icons.Material.Filled.Person" Size="Size.Small" Class="mr-1" />
+            @Item.NomeCliente
+        </MudText>
+    </div>
+    
+    <MudDivider Class="my-2" />
+    
+    <div class="d-flex align-center justify-space-between my-2">
+        <MudText Typo="Typo.body2" Color="Color.Secondary">
+            <MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Size="Size.Small" Class="mr-1" />
+            @Item.TotalItens items
+        </MudText>
+    </div>
+    
+    <div class="d-flex align-center justify-space-between my-2">
+        <MudText Typo="Typo.body2" Color="Color.Secondary">
+            <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Size="Size.Small" Class="mr-1" />
+            @Item.DataEntrega
+        </MudText>
+    </div>
+    
+    <MudDivider Class="my-2" />
+    
+    <div class="d-flex align-center justify-space-between mt-3">
+        <MudText Typo="Typo.body2" Style="color: #92929f;">Total</MudText>
+        <MudText Typo="Typo.h6" Style="font-weight: 700; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            R$ @Item.ValorTotal.ToString("F2")
+        </MudText>
+    </div>
+</MudPaper>
+
+@code {
+[Parameter, EditorRequired]
+public required PedidoCard Item { get; set; }
+
+private async Task OpenPedidoModalAsync()
+{
+var resultApi = await _pedidoHandler.GetPedidoModal(Item.PedidoId);
+if (resultApi.IsSuccess && resultApi.Data != null)
+{
+var parameters = new DialogParameters<PedidoModalView> { { x => x._pedidoModal, resultApi.Data }};
+var dialog = await DialogService.ShowAsync<PedidoModalView>("Pedido", parameters);
+}
+
+}
+}

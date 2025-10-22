@@ -5,32 +5,51 @@ namespace OMG.WebApp.Authentication;
 
 /// <summary>
 /// Factory que cria HttpClients autenticados com o token do usuário atual.
-/// Resolve o problema de escopo do AuthorizationMessageHandler.
+/// Token é lido do HybridAuthenticationService - funciona sempre.
 /// </summary>
 public class AuthenticatedHttpClientFactory(
     IHttpClientFactory httpClientFactory,
-    AuthenticationStateService authStateService,
+    HybridAuthenticationService authService,
     ILogger<AuthenticatedHttpClientFactory> logger)
 {
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
-    private readonly AuthenticationStateService _authStateService = authStateService;
+    private readonly HybridAuthenticationService _authService = authService;
     private readonly ILogger<AuthenticatedHttpClientFactory> _logger = logger;
 
+    public Task<HttpClient> CreateClientAsync(string name)
+    {
+        return Task.FromResult(CreateClient(name));
+    }
+    
+    /// <summary>
+    /// Cria HttpClient COM autenticação (adiciona token do cookie se disponível)
+    /// </summary>
     public HttpClient CreateClient(string name)
     {
         var client = _httpClientFactory.CreateClient(name);
 
-        if (_authStateService.HasToken)
+        var token = _authService.GetToken(); // Lê do cookie HTTP
+        
+        if (!string.IsNullOrEmpty(token))
         {
-            _logger.LogInformation("✅ Token encontrado, adicionando ao HttpClient");
+            _logger.LogDebug("✅ Token encontrado no cookie, adicionando ao HttpClient");
             client.DefaultRequestHeaders.Authorization = 
-                new AuthenticationHeaderValue("Bearer", _authStateService.Token);
+                new AuthenticationHeaderValue("Bearer", token);
         }
         else
         {
-            _logger.LogWarning("⚠️ Token NÃO encontrado ao criar HttpClient");
+            _logger.LogDebug("ℹ️ Sem token - HttpClient sem autenticação");
         }
 
         return client;
+    }
+
+    /// <summary>
+    /// Cria HttpClient SEM autenticação (para login, registro, etc)
+    /// </summary>
+    public HttpClient CreateUnauthenticatedClient(string name)
+    {
+        _logger.LogDebug("🔓 Criando client SEM autenticação");
+        return _httpClientFactory.CreateClient(name);
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using OMG.Domain.Base;
-using OMG.Domain.Base.Contract;
+using OMG.Core.Base;
+using OMG.Core.Base.Contract;
 using System.Linq.Expressions;
 
 namespace OMG.Repository.Repositories;

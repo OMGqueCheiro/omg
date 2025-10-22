@@ -1,0 +1,18 @@
+@inject NavigationManager Navigation
+
+<div class="d-flex justify-center align-center" style="height: 100vh;">
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
+    <MudText Class="ml-4">Redirecionando para login...</MudText>
+</div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Pequeno delay para garantir que o WASM está totalmente carregado
+            await Task.Delay(100);
+            Navigation.NavigateTo("/login", forceLoad: false);
+        }
+    }
+}

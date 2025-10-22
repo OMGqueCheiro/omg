@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OMG.Domain.Contracts;
-using OMG.Domain.Request;
+using OMG.Core.Request;
 
 namespace OMG.Api.Controllers;
 

@@ -1,4 +1,4 @@
-﻿using OMG.Domain.Enum;
+﻿using OMG.Core.Enum;
 
 namespace OMG.Domain.Contracts.Repository;
 

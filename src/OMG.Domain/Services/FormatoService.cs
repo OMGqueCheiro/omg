@@ -1,6 +1,6 @@
-﻿using OMG.Domain.Base.Contract;
+﻿using OMG.Core.Base.Contract;
 using OMG.Domain.Contracts.Service;
-using OMG.Domain.Entities;
+using OMG.Core.Entities;
 
 namespace OMG.Domain.Services;
 

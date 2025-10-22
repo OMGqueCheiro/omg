@@ -2,9 +2,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using OMG.Domain;
-using OMG.Repository;
-using OMG.UserIdentity;
+using OMG.Infrastructure.DI;
 using System.Text;
 
 namespace OMG.Api;
@@ -20,8 +18,10 @@ public class Program
         // Add services to the container.
         builder.Services.AddControllers();
 
-        builder.Services.AddOMGServices();
+        // Configurar serviços de domínio (OMG.Infrastructure)
+        builder.Services.AddDomainServices();
 
+        // Configurar repositórios e DbContext (OMG.Infrastructure)
         builder.AddOMGRepository();
 
         // Configurar Identity com UserIdentity - usando a mesma connection string do Aspire

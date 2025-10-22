@@ -1,5 +1,5 @@
-﻿using OMG.Domain.Entities;
-using OMG.Domain.Enum;
+﻿using OMG.Core.Entities;
+using OMG.Core.Enum;
 
 namespace OMG.Domain.Contracts.Repository;
 
