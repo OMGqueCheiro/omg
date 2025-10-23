@@ -3,9 +3,11 @@
 @using OMG.Core.ViewModels
 @using OMG.Core.Enum
 @using OMG.Core.Request
+@using Microsoft.AspNetCore.Components.Authorization
 @inject IPedidoHandler _pedidoHandler
 @inject IDialogService DialogService
 @inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>Pedidos</PageTitle>
 
@@ -29,8 +31,8 @@
                                Style="border-radius: 12px; text-transform: none; font-weight: 600;"
                                OnClick="OpenModalNewPedido">
                         Novo Pedido
-            </MudButton>
-        </div>
+                    </MudButton>
+                </div>
 
         <MudDropContainer T="PedidoCard" @ref="_dropContainer" Items="@_pedidos" ItemsSelector="@((item,column) => item.Status.ToString() == column)" ItemDropped="TaskUpdated" Class="d-flex flex-row" Style="gap: 16px;">
             <ChildContent>
@@ -77,6 +79,31 @@
 @code {
     private MudDropContainer<PedidoCard>? _dropContainer;
 
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (!user.Identity?.IsAuthenticated ?? true)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        await LoadPedidos();
+    }
+
+    private async Task LoadPedidos()
+    {
+        var resultApi = await _pedidoHandler.GetPedidoCardList();
+        if (resultApi.IsSuccess && resultApi.Data != null && resultApi.Data.Any())
+            _pedidos.AddRange(resultApi.Data);
+
+        _dropContainer?.Refresh();
+    }
+
     private async Task TaskUpdated(MudItemDropInfo<PedidoCard> info)
     {
         if (info.Item == null)
@@ -112,17 +139,6 @@
     }
 
     private List<PedidoCard> _pedidos = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        await base.OnInitializedAsync();
-
-        var resultApi = await _pedidoHandler.GetPedidoCardList();
-        if (resultApi.IsSuccess && resultApi.Data != null && resultApi.Data.Any())
-            _pedidos.AddRange(resultApi.Data);
-
-        _dropContainer?.Refresh();
-    }
 
     private async Task OpenModalNewPedido()
     {
