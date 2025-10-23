@@ -1,0 +1,82 @@
+﻿@using OMG.Core.Handler
+@using OMG.Core.ViewModels
+
+
+<MudDialog>
+	<TitleContent>
+		<MudText Typo="Typo.h4">
+			Pedido nº @_pedidoModal.PedidoId
+		</MudText>
+	</TitleContent>
+	<DialogContent>
+		<MudGrid Spacing="2" Justify="Justify.Center">
+			<MudDivider />
+			<MudItem xs="12">
+				<MudText Typo="Typo.h6">Cliente</MudText>
+			</MudItem>
+			<MudItem xs="6">
+				<MudText Typo="Typo.body1">Nome: @_pedidoModal.ClienteNome</MudText>
+			</MudItem>
+			<MudItem xs="6">
+				<MudText Typo="Typo.body1">Telefone: @_pedidoModal.ClienteTelefone</MudText>
+			</MudItem>
+			<MudItem xs="12">
+				<MudText Typo="Typo.body1">Endereço: @_pedidoModal.ClienteEndereco</MudText>
+			</MudItem>
+			<MudDivider />
+			<MudItem xs="12">
+				<MudText Typo="Typo.h6">Itens</MudText>
+			</MudItem>
+			<MudItem xs="12">
+				<MudDataGrid Items="_pedidoModal.PedidoItens">
+					<Columns>
+						<PropertyColumn Property="x => x.Quantidade" />
+						<PropertyColumn Property="x => x.Produto" />
+						<PropertyColumn Property="x => x.Formato" />
+						<PropertyColumn Property="x => x.Cor" />
+						<PropertyColumn Property="x => x.Aroma" />
+						<PropertyColumn Property="x => x.Embalagem" />
+					</Columns>
+				</MudDataGrid>
+			</MudItem>
+			<MudDivider />
+			<MudItem xs="4">
+				<MudText Typo="Typo.body1">Valor Total: R$@_pedidoModal.ValorTotal.ToString("F2")</MudText>
+			</MudItem>
+			<MudItem xs="4">
+				<MudText Typo="Typo.body1">Valor Pago: R$@_pedidoModal.ValorPago.ToString("F2")</MudText>
+			</MudItem>
+			@if (!_pedidoModal.Permuta)
+			{
+				<MudItem xs="4">
+					<MudText Typo="Typo.body1">Valor a Receber: R$@_pedidoModal.ValorReceber.ToString("F2")</MudText>
+				</MudItem>
+			}
+		</MudGrid>
+	</DialogContent>
+	<DialogActions>
+		<MudButton OnClick="Fechar">Fechar</MudButton>
+	</DialogActions>
+</MudDialog>
+
+@code {
+
+	[CascadingParameter]
+	private IMudDialogInstance MudDialog { get; set; } = default!;
+
+	[Parameter]
+	public PedidoModal _pedidoModal { get; set; } = new PedidoModal();
+
+	private void Fechar() => MudDialog.Cancel();
+
+	protected override void OnInitialized()
+	{
+		MudDialog.SetOptionsAsync(MudDialog.Options with
+			{
+				MaxWidth = MaxWidth.Large,
+				FullWidth = true
+			});
+
+		base.OnInitialized();
+	}
+}

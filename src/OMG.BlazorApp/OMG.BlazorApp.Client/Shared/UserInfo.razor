@@ -1,0 +1,92 @@
+@using System.Security.Claims
+
+<AuthorizeView>
+    <Authorized>
+        <MudPaper Class="pa-4">
+            <MudText Typo="Typo.h6" GutterBottom="true">
+                <MudIcon Icon="@Icons.Material.Filled.AccountCircle" Class="mr-2"/>
+                Informações do Usuário
+            </MudText>
+            
+            <MudDivider Class="my-2"/>
+            
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">Email:</MudText>
+                    <MudText Typo="Typo.body1"><strong>@GetUserEmail(context)</strong></MudText>
+                </MudItem>
+                
+                <MudItem xs="12" sm="6">
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">Nome:</MudText>
+                    <MudText Typo="Typo.body1"><strong>@GetUserName(context)</strong></MudText>
+                </MudItem>
+                
+                <MudItem xs="12" sm="6">
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">User ID:</MudText>
+                    <MudText Typo="Typo.body1"><strong>@GetUserId(context)</strong></MudText>
+                </MudItem>
+                
+                <MudItem xs="12" sm="6">
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">Identity.Name:</MudText>
+                    <MudText Typo="Typo.body1"><strong>@context.User.Identity?.Name</strong></MudText>
+                </MudItem>
+            </MudGrid>
+
+            @if (ShowAllClaims)
+            {
+                <MudDivider Class="my-3"/>
+                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-2">Todos os Claims:</MudText>
+                <MudSimpleTable Dense="true" Hover="true" Style="font-size: 0.875rem;">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var claim in context.User.Claims)
+                        {
+                            <tr>
+                                <td><code>@claim.Type</code></td>
+                                <td>@claim.Value</td>
+                            </tr>
+                        }
+                    </tbody>
+                </MudSimpleTable>
+            }
+        </MudPaper>
+    </Authorized>
+    <NotAuthorized>
+        <MudAlert Severity="Severity.Warning">
+            Usuário não autenticado. <MudLink Href="/login" Color="Color.Primary">Faça login</MudLink>
+        </MudAlert>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [Parameter]
+    public bool ShowAllClaims { get; set; } = false;
+
+    private string GetUserEmail(AuthenticationState context)
+    {
+        return context.User.FindFirst(ClaimTypes.Email)?.Value
+            ?? context.User.FindFirst("email")?.Value
+            ?? "N/A";
+    }
+
+    private string GetUserName(AuthenticationState context)
+    {
+        return context.User.FindFirst("nome")?.Value
+            ?? context.User.FindFirst("nome_completo")?.Value
+            ?? context.User.FindFirst(ClaimTypes.Name)?.Value
+            ?? "N/A";
+    }
+
+    private string GetUserId(AuthenticationState context)
+    {
+        return context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? context.User.FindFirst("userId")?.Value
+            ?? context.User.FindFirst("sub")?.Value
+            ?? "N/A";
+    }
+}

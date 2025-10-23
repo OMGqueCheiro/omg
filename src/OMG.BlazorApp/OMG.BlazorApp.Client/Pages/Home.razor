@@ -1,0 +1,138 @@
+﻿@page "/"
+@using OMG.Core.Handler
+@using OMG.Core.ViewModels
+@using OMG.Core.Enum
+@using OMG.Core.Request
+@inject IPedidoHandler _pedidoHandler
+@inject IDialogService DialogService
+@inject NavigationManager Navigation
+
+<PageTitle>Pedidos</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+            <MudPaper Elevation="0" Class="pa-6" Style="border-radius: 16px; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); border: 1px solid rgba(0,0,0,0.08);">
+                <div class="d-flex justify-space-between align-center mb-6">
+                    <div>
+                        <MudText Typo="Typo.h4" Style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: bold;">
+                            Pedidos
+                        </MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mt-1">
+                            Gerencie seus pedidos arrastando os cards entre as colunas
+                        </MudText>
+                    </div>
+                    <MudButton Variant="Variant.Filled" 
+                               Color="Color.Primary" 
+                               StartIcon="@Icons.Material.Filled.Add"
+                               Size="Size.Large"
+                               Style="border-radius: 12px; text-transform: none; font-weight: 600;"
+                               OnClick="OpenModalNewPedido">
+                        Novo Pedido
+            </MudButton>
+        </div>
+
+        <MudDropContainer T="PedidoCard" @ref="_dropContainer" Items="@_pedidos" ItemsSelector="@((item,column) => item.Status.ToString() == column)" ItemDropped="TaskUpdated" Class="d-flex flex-row" Style="gap: 16px;">
+            <ChildContent>
+                @foreach (var item in _sections)
+                {
+                    <MudPaper Elevation="0" Width="25%" MinHeight="500px" Class="pa-4 d-flex flex-column" Style="border-radius: 12px; background: rgba(102, 126, 234, 0.05); border: 2px dashed rgba(102, 126, 234, 0.2);">
+                        <MudToolBar Gutters="false" Dense="true" Class="mb-3">
+                            <MudText Typo="Typo.subtitle1" Style="font-weight: 600; color: #667eea;">
+                                @item.Name
+                            </MudText>
+                        </MudToolBar>
+                        <MudDropZone T="PedidoCard" Identifier="@item.PedidoStatus.ToString()" Class="mud-height-full" />
+                    </MudPaper>
+                }
+            </ChildContent>
+            <ItemRenderer Context="pedido">
+                <PedidoCardView Item="@pedido" />
+            </ItemRenderer>
+        </MudDropContainer>
+    </MudPaper>
+</MudContainer>
+    </Authorized>
+    <NotAuthorized>
+        <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-16">
+            <MudPaper Class="pa-8" Elevation="3">
+                <MudText Typo="Typo.h4" Align="Align.Center" GutterBottom="true">
+                    <MudIcon Icon="@Icons.Material.Filled.Lock" Size="Size.Large" Class="mr-2" Color="Color.Warning"/>
+                    Acesso Restrito
+                </MudText>
+                <MudText Typo="Typo.body1" Align="Align.Center" Class="mb-6">
+                    Você precisa estar autenticado para acessar esta página.
+                </MudText>
+                <MudButton Variant="Variant.Filled" 
+                           Color="Color.Primary" 
+                           FullWidth="true"
+                           OnClick="@(() => Navigation.NavigateTo("/login"))">
+                    Fazer Login
+                </MudButton>
+            </MudPaper>
+        </MudContainer>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private MudDropContainer<PedidoCard>? _dropContainer;
+
+    private async Task TaskUpdated(MudItemDropInfo<PedidoCard> info)
+    {
+        if (info.Item == null)
+            return;
+
+        if (info.Item.Status == Enum.Parse<EPedidoStatus>(info.DropzoneIdentifier))
+            return;
+
+        var resultApi = await _pedidoHandler.ChangeStatus(new PedidoChangeStatusRequest(info.Item.PedidoId, Enum.Parse<EPedidoStatus>(info.DropzoneIdentifier)));
+
+        if (resultApi.IsSuccess)
+            info.Item.Status = Enum.Parse<EPedidoStatus>(info.DropzoneIdentifier);
+    }
+
+    private List<PedidoKanbanSection> _sections = new()
+    {
+        new PedidoKanbanSection("Novo", EPedidoStatus.Novo),
+        new PedidoKanbanSection("Em Produção", EPedidoStatus.Producao),
+        new PedidoKanbanSection("Pronto", EPedidoStatus.Pronto),
+        new PedidoKanbanSection("Entregue", EPedidoStatus.Entregue),
+    };
+
+    public class PedidoKanbanSection
+    {
+        public PedidoKanbanSection(string name, EPedidoStatus pedidoStatus)
+        {
+            Name = name;
+            PedidoStatus = pedidoStatus;
+        }
+
+        public string Name { get; init; }
+        public EPedidoStatus PedidoStatus { get; set; }
+    }
+
+    private List<PedidoCard> _pedidos = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        var resultApi = await _pedidoHandler.GetPedidoCardList();
+        if (resultApi.IsSuccess && resultApi.Data != null && resultApi.Data.Any())
+            _pedidos.AddRange(resultApi.Data);
+
+        _dropContainer?.Refresh();
+    }
+
+    private async Task OpenModalNewPedido()
+    {
+        var dialog = await DialogService.ShowAsync<PedidoNewModalView>("Novo Pedido");
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled && result.Data is PedidoCard pedidoCard)
+        {
+            _pedidos.Add(pedidoCard);
+            _dropContainer?.Refresh();
+        }
+    }
+}

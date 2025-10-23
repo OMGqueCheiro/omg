@@ -1,0 +1,113 @@
+@page "/login"
+@layout AuthLayout
+@using MudBlazor
+@using System.ComponentModel.DataAnnotations
+@using OMG.Core.Request
+@using OMG.Core.Handler
+@inject IAuthHandler AuthHandler
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+
+<PageTitle>Login - OMG que Cheiro</PageTitle>
+<MudPaper Elevation="10" Class="pa-8" Style="border-radius: 16px;">
+    <MudText Typo="Typo.h4" Align="Align.Center" GutterBottom="true">
+        Bem-vindo!
+    </MudText>
+    <MudText Typo="Typo.body1" Align="Align.Center" Class="mb-6" Color="Color.Secondary">
+        Entre com suas credenciais
+    </MudText>
+
+        <MudForm @ref="form" @bind-IsValid="@success">
+            <MudTextField @bind-Value="email" 
+                          Label="Email" 
+                          Variant="Variant.Outlined" 
+                          Required="true" 
+                          RequiredError="Email é obrigatório"
+                          Validation="@(new EmailAddressAttribute() {ErrorMessage = "Email inválido"})" />
+
+            <MudTextField @bind-Value="password" 
+                          Label="Senha" 
+                          Variant="Variant.Outlined" 
+                          InputType="InputType.Password" 
+                          Required="true" 
+                          RequiredError="Senha é obrigatória"
+                          Class="mt-4" />
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <MudAlert Severity="Severity.Error" Class="mt-4">@errorMessage</MudAlert>
+            }
+
+            <MudButton Variant="Variant.Filled" 
+                       Color="Color.Primary" 
+                       FullWidth="true" 
+                       Class="mt-6"
+                       OnClick="HandleLogin"
+                       Disabled="@isLoading">
+                @if (isLoading)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                    <MudText Class="ml-2">Entrando...</MudText>
+                }
+                else
+                {
+                    <text>Entrar</text>
+                }
+            </MudButton>
+
+            <MudDivider Class="my-4" />
+
+            <MudButton Variant="Variant.Text" 
+                       Color="Color.Secondary" 
+                       FullWidth="true"
+                       OnClick="@(() => Navigation.NavigateTo("/register"))">
+                Não tem conta? Cadastre-se
+            </MudButton>
+        </MudForm>
+    </MudPaper>
+
+@code {
+    private MudForm? form;
+    private bool success;
+    private string email = string.Empty;
+    private string password = string.Empty;
+    private string errorMessage = string.Empty;
+    private bool isLoading = false;
+
+    private async Task HandleLogin()
+    {
+        await form!.Validate();
+        if (!success)
+        {
+            return;
+        }
+
+        isLoading = true;
+        errorMessage = string.Empty;
+
+        try
+        {
+            var loginRequest = new LoginRequest(email, password);
+            var response = await AuthHandler.LoginAsync(loginRequest);
+            
+            if (!response.Success || string.IsNullOrEmpty(response.Token))
+            {
+                errorMessage = response.Message ?? "Credenciais inválidas";
+                Snackbar.Add(errorMessage, Severity.Error);
+                return;
+            }
+            
+            Snackbar.Add("Login realizado com sucesso!", Severity.Success);
+            Navigation.NavigateTo("/", forceLoad: true);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            Snackbar.Add($"Erro durante login: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

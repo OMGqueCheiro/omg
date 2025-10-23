@@ -1,0 +1,114 @@
+@page "/clientes"
+@using OMG.Core.Entities
+@using OMG.Core.Handler
+@inject IClienteHandler ClienteHandler
+@inject ISnackbar Snackbar
+
+<PageTitle>Clientes</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">Gestão de Clientes</MudText>
+
+<AuthorizeView>
+    <Authorized>
+        <MudAlert Severity="Severity.Success" Class="mb-4">
+            Você está autenticado como <strong>@context.User.Identity?.Name</strong>
+        </MudAlert>
+    </Authorized>
+    <NotAuthorized>
+        <MudAlert Severity="Severity.Warning" Class="mb-4">
+            ⚠️ Esta página funciona sem autenticação para demonstração, mas a API pode exigir autenticação.
+            <MudLink Href="/login" Color="Color.Primary">Faça login</MudLink> para testar com autenticação.
+        </MudAlert>
+    </NotAuthorized>
+</AuthorizeView>
+
+<MudPaper Class="pa-4 ma-2">
+    <MudText Typo="Typo.h6" Class="mb-4">Exemplo de Uso do Handler</MudText>
+    
+    <MudGrid>
+        <MudItem xs="12" sm="6">
+            <MudTextField @bind-Value="novoCliente.Nome" 
+                          Label="Nome" 
+                          Variant="Variant.Outlined"/>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudTextField @bind-Value="novoCliente.Telefone" 
+                          Label="Telefone" 
+                          Variant="Variant.Outlined"/>
+        </MudItem>
+        <MudItem xs="12">
+            <MudTextField @bind-Value="novoCliente.Endereco" 
+                          Label="Endereço" 
+                          Variant="Variant.Outlined"
+                          Lines="3"/>
+        </MudItem>
+        <MudItem xs="12">
+            <MudButton Color="Color.Primary" 
+                       Variant="Variant.Filled" 
+                       OnClick="CriarCliente"
+                       Disabled="@isLoading">
+                @if (isLoading)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2"/>
+                }
+                Criar Cliente
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+<MudPaper Class="pa-4 ma-2 mt-4">
+    <MudText Typo="Typo.body2" Class="mb-2">
+        <strong>Como funciona:</strong>
+    </MudText>
+    <MudText Typo="Typo.body2" Class="mb-1">
+        1. O componente injeta o <code>IClienteHandler</code>
+    </MudText>
+    <MudText Typo="Typo.body2" Class="mb-1">
+        2. O handler faz requisição HTTP para <code>/api/Cliente</code>
+    </MudText>
+    <MudText Typo="Typo.body2" Class="mb-1">
+        3. O servidor BlazorApp (YARP) encaminha para <code>omg-api</code>
+    </MudText>
+    <MudText Typo="Typo.body2">
+        4. A API processa e retorna a resposta
+    </MudText>
+</MudPaper>
+
+@code {
+    private Cliente novoCliente = new();
+    private bool isLoading = false;
+
+    private async Task CriarCliente()
+    {
+        if (string.IsNullOrWhiteSpace(novoCliente.Nome))
+        {
+            Snackbar.Add("Nome é obrigatório", Severity.Warning);
+            return;
+        }
+
+        isLoading = true;
+        try
+        {
+            var response = await ClienteHandler.CreateOrUpdate(novoCliente);
+            
+            if (response.IsSuccess)
+            {
+                Snackbar.Add($"Cliente '{novoCliente.Nome}' criado com sucesso!", Severity.Success);
+                novoCliente = new Cliente(); // Limpar formulário
+            }
+            else
+            {
+                Snackbar.Add($"Erro ao criar cliente: {response.Message}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
