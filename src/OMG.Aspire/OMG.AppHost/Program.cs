@@ -17,11 +17,6 @@ var api = builder.AddProject<Projects.OMG_Api>("omg-api")
     .WaitForCompletion(migrations)
     .WithExternalHttpEndpoints();
 
-var webApp = builder.AddProject<Projects.OMG_WebApp>("omg-webapp")
-    .WithReference(api)
-    .WaitFor(api)
-    .WithExternalHttpEndpoints();
-
 var blazorApp = builder.AddProject<Projects.OMG_BlazorApp>("omg-blazorapp")
     .WithReference(api)
     .WaitFor(api)

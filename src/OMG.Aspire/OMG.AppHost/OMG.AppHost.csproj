@@ -20,7 +20,6 @@
     <ProjectReference Include="../../OMG.BlazorApp/OMG.BlazorApp/OMG.BlazorApp.csproj" />
     <ProjectReference Include="..\..\OMG.Api\OMG.Api.csproj" />
     <ProjectReference Include="..\..\OMG.Repository\OMG.Repository.csproj" />
-    <ProjectReference Include="..\..\OMG.WebApp\OMG.WebApp.csproj" />
     <ProjectReference Include="..\..\OMG.Worker\OMG.MigrationWorker\OMG.MigrationWorker.csproj" />
   </ItemGroup>
 

@@ -1,37 +1,21 @@
 ﻿using OMG.Core.Base;
 using OMG.Core.Handler;
-using System.Net.Http.Json;
 
 namespace OMG.BlazorApp.Client.Handlers;
 
-public class BaseSearchHandler<TypeReturn> : IBaseSearchHandler<TypeReturn>
+public class BaseSearchHandler<TypeReturn> : BaseHandler, IBaseSearchHandler<TypeReturn>
 {
-    private readonly HttpClient _httpClient;
-
-    public BaseSearchHandler(HttpClient httpClient)
+    public BaseSearchHandler(HttpClient httpClient) : base(httpClient)
     {
-        _httpClient = httpClient;
     }
     
     public async Task<Response<IEnumerable<TypeReturn>>> GetAll(string UrlAction)
     {
-        // HttpClient já configurado via DI
-        var response = await _httpClient.GetAsync($"api/{UrlAction}");
-
-        if (response.IsSuccessStatusCode)
-            return new Response<IEnumerable<TypeReturn>>(await response.Content.ReadFromJsonAsync<IEnumerable<TypeReturn>>(), (int)response.StatusCode);
-
-        return new Response<IEnumerable<TypeReturn>>(code: (int)response.StatusCode, message: await response.Content.ReadAsStringAsync());
+        return await GetAsync<IEnumerable<TypeReturn>>($"api/{UrlAction}");
     }
 
     public async Task<Response<IEnumerable<TypeReturn>>> GetAll(string UrlAction, string Search)
     {
-        // HttpClient já configurado via DI
-        var response = await _httpClient.GetAsync($"api/{UrlAction}/search/{Search}");
-
-        if (response.IsSuccessStatusCode)
-            return new Response<IEnumerable<TypeReturn>>(await response.Content.ReadFromJsonAsync<IEnumerable<TypeReturn>>(), (int)response.StatusCode);
-
-        return new Response<IEnumerable<TypeReturn>>(code: (int)response.StatusCode, message: await response.Content.ReadAsStringAsync());
+        return await GetAsync<IEnumerable<TypeReturn>>($"api/{UrlAction}/search/{Search}");
     }
 }

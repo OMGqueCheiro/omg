@@ -175,43 +175,39 @@
     int quantidadeValue { get; set; } = 1;
 
     string produtoValue { get; set; } = string.Empty;
-    private async Task<IEnumerable<string>> SearchProduto(string value, CancellationToken token)
-    {
-        if (string.IsNullOrEmpty(value))
-            return (await _searchProdutoHandler.GetAll("Produto"))?.Data?.Select(x => x.Descricao) ?? Array.Empty<string>();
-        return (await _searchProdutoHandler.GetAll("Produto", value))?.Data?.Select(x => x.Descricao) ?? Array.Empty<string>();
-    }
+    private Task<IEnumerable<string>> SearchProduto(string value, CancellationToken token)
+        => SearchEntity(_searchProdutoHandler, "Produto", value, x => x.Descricao);
 
     string formatoValue { get; set; } = string.Empty;
-    private async Task<IEnumerable<string>> SearchFormato(string value, CancellationToken token)
-    {
-        if (string.IsNullOrEmpty(value))
-            return (await _searchFormatoHandler.GetAll("Formato"))?.Data?.Select(x => x.Descricao) ?? Array.Empty<string>();
-        return (await _searchFormatoHandler.GetAll("Formato", value))?.Data?.Select(x => x.Descricao) ?? Array.Empty<string>();
-    }
+    private Task<IEnumerable<string>> SearchFormato(string value, CancellationToken token)
+        => SearchEntity(_searchFormatoHandler, "Formato", value, x => x.Descricao);
 
     string aromaValue { get; set; } = string.Empty;
-    private async Task<IEnumerable<string>> SearchAroma(string value, CancellationToken token)
-    {
-        if (string.IsNullOrEmpty(value))
-            return (await _searchAromaHandler.GetAll("Aroma"))?.Data?.Select(x => x.Nome) ?? Array.Empty<string>();
-        return (await _searchAromaHandler.GetAll("Aroma", value))?.Data?.Select(x => x.Nome) ?? Array.Empty<string>();
-    }
+    private Task<IEnumerable<string>> SearchAroma(string value, CancellationToken token)
+        => SearchEntity(_searchAromaHandler, "Aroma", value, x => x.Nome);
 
     string corValue { get; set; } = string.Empty;
-    private async Task<IEnumerable<string>> SearchCor(string value, CancellationToken token)
-    {
-        if (string.IsNullOrEmpty(value))
-            return (await _searchCorHandler.GetAll("Cor"))?.Data?.Select(x => x.Nome) ?? Array.Empty<string>();
-        return (await _searchCorHandler.GetAll("Cor", value))?.Data?.Select(x => x.Nome) ?? Array.Empty<string>();
-    }
+    private Task<IEnumerable<string>> SearchCor(string value, CancellationToken token)
+        => SearchEntity(_searchCorHandler, "Cor", value, x => x.Nome);
 
     string embalagemValue { get; set; } = string.Empty;
-    private async Task<IEnumerable<string>> SearchEmbalagem(string value, CancellationToken token)
+    private Task<IEnumerable<string>> SearchEmbalagem(string value, CancellationToken token)
+        => SearchEntity(_searchEmbalagemHandler, "Embalagem", value, x => x.Descricao);
+
+    /// <summary>
+    /// Método genérico para buscar entidades e mapear para string
+    /// </summary>
+    private async Task<IEnumerable<string>> SearchEntity<T>(
+        IBaseSearchHandler<T> handler,
+        string urlAction,
+        string value,
+        Func<T, string> selector)
     {
-        if (string.IsNullOrEmpty(value))
-            return (await _searchEmbalagemHandler.GetAll("Embalagem"))?.Data?.Select(x => x.Descricao) ?? Array.Empty<string>();
-        return (await _searchEmbalagemHandler.GetAll("Embalagem", value))?.Data?.Select(x => x.Descricao) ?? Array.Empty<string>();
+        var response = string.IsNullOrEmpty(value)
+            ? await handler.GetAll(urlAction)
+            : await handler.GetAll(urlAction, value);
+
+        return response?.Data?.Select(selector) ?? Array.Empty<string>();
     }
 
 }
