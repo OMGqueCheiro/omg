@@ -1,0 +1,137 @@
+@page "/cadastros/produtos"
+@inject ICrudHandler<Produto> Handler
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<AuthorizeView>
+    <Authorized>
+        <CrudDataGrid TEntity="Produto"
+                      Title="Produtos"
+                      Subtitle="Gerencie os produtos do sistema"
+                      Items="@_items"
+                      Loading="@_loading"
+                      OnCreateClick="@OpenCreateModal"
+                      OnEditClick="@OpenEditModal"
+                      OnDeleteClick="@ConfirmDelete">
+            <PropertyColumn T="Produto" TProperty="int" Property="x => x.Id" Title="ID" />
+            <PropertyColumn T="Produto" TProperty="string" Property="x => x.Descricao" Title="Descrição" />
+        </CrudDataGrid>
+    </Authorized>
+    <NotAuthorized>
+        <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+            <MudAlert Severity="Severity.Warning">
+                Você precisa estar autenticado para acessar esta página.
+                <MudLink Href="/login" Color="Color.Primary">Faça login</MudLink>
+            </MudAlert>
+        </MudContainer>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private List<Produto> _items = new();
+    private bool _loading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        _loading = true;
+        var response = await Handler.GetAllAsync();
+        
+        if (response.IsSuccess && response.Data != null)
+        {
+            _items = response.Data.ToList();
+        }
+        else
+        {
+            Snackbar.Add(response.Message ?? "Erro ao carregar dados", Severity.Error);
+        }
+        
+        _loading = false;
+    }
+
+    private async Task OpenCreateModal()
+    {
+        var parameters = new DialogParameters<ProdutoModal>
+        {
+            { x => x.Entity, new Produto() },
+            { x => x.IsEdit, false }
+        };
+
+        var dialog = await DialogService.ShowAsync<ProdutoModal>("Novo Produto", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data is Produto entity)
+        {
+            var response = await Handler.CreateAsync(entity);
+            
+            if (response.IsSuccess)
+            {
+                Snackbar.Add("Produto criado com sucesso!", Severity.Success);
+                await LoadData();
+            }
+            else
+            {
+                Snackbar.Add(response.Message ?? "Erro ao criar produto", Severity.Error);
+            }
+        }
+    }
+
+    private async Task OpenEditModal(Produto entity)
+    {
+        var parameters = new DialogParameters<ProdutoModal>
+        {
+            { x => x.Entity, entity },
+            { x => x.IsEdit, true }
+        };
+
+        var dialog = await DialogService.ShowAsync<ProdutoModal>("Editar Produto", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data is Produto editedEntity)
+        {
+            var response = await Handler.UpdateAsync(editedEntity);
+            
+            if (response.IsSuccess)
+            {
+                Snackbar.Add("Produto atualizado com sucesso!", Severity.Success);
+                await LoadData();
+            }
+            else
+            {
+                Snackbar.Add(response.Message ?? "Erro ao atualizar produto", Severity.Error);
+            }
+        }
+    }
+
+    private async Task ConfirmDelete(Produto entity)
+    {
+        var parameters = new DialogParameters
+        {
+            { "ContentText", $"Tem certeza que deseja excluir o produto '{entity.Descricao}'?" },
+            { "ButtonText", "Excluir" },
+            { "Color", Color.Error }
+        };
+
+        var dialog = await DialogService.ShowAsync<MudMessageBox>("Confirmar Exclusão", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var response = await Handler.DeleteAsync(entity.Id);
+            
+            if (response.IsSuccess)
+            {
+                Snackbar.Add("Produto excluído com sucesso!", Severity.Success);
+                await LoadData();
+            }
+            else
+            {
+                Snackbar.Add(response.Message ?? "Erro ao excluir produto", Severity.Error);
+            }
+        }
+    }
+}

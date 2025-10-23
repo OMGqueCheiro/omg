@@ -1,0 +1,139 @@
+@page "/cadastros/clientes"
+@inject ICrudHandler<Cliente> ClienteHandler
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<AuthorizeView>
+    <Authorized>
+        <CrudDataGrid TEntity="Cliente"
+                      Title="Clientes"
+                      Subtitle="Gerencie os clientes do sistema"
+                      Items="@_clientes"
+                      Loading="@_loading"
+                      OnCreateClick="@OpenCreateModal"
+                      OnEditClick="@OpenEditModal"
+                      OnDeleteClick="@ConfirmDelete">
+            <PropertyColumn T="Cliente" TProperty="int" Property="x => x.Id" Title="ID" />
+            <PropertyColumn T="Cliente" TProperty="string" Property="x => x.Nome" Title="Nome" />
+            <PropertyColumn T="Cliente" TProperty="string" Property="x => x.Telefone" Title="Telefone" />
+            <PropertyColumn T="Cliente" TProperty="string" Property="x => x.Endereco" Title="Endereço" />
+        </CrudDataGrid>
+    </Authorized>
+    <NotAuthorized>
+        <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+            <MudAlert Severity="Severity.Warning">
+                Você precisa estar autenticado para acessar esta página.
+                <MudLink Href="/login" Color="Color.Primary">Faça login</MudLink>
+            </MudAlert>
+        </MudContainer>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private List<Cliente> _clientes = new();
+    private bool _loading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        _loading = true;
+        var response = await ClienteHandler.GetAllAsync();
+        
+        if (response.IsSuccess && response.Data != null)
+        {
+            _clientes = response.Data.ToList();
+        }
+        else
+        {
+            Snackbar.Add(response.Message ?? "Erro ao carregar clientes", Severity.Error);
+        }
+        
+        _loading = false;
+    }
+
+    private async Task OpenCreateModal()
+    {
+        var parameters = new DialogParameters<ClienteModal>
+        {
+            { x => x.Entity, new Cliente() },
+            { x => x.IsEdit, false }
+        };
+
+        var dialog = await DialogService.ShowAsync<ClienteModal>("Novo Cliente", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data is Cliente cliente)
+        {
+            var response = await ClienteHandler.CreateAsync(cliente);
+            
+            if (response.IsSuccess)
+            {
+                Snackbar.Add("Cliente criado com sucesso!", Severity.Success);
+                await LoadData();
+            }
+            else
+            {
+                Snackbar.Add(response.Message ?? "Erro ao criar cliente", Severity.Error);
+            }
+        }
+    }
+
+    private async Task OpenEditModal(Cliente cliente)
+    {
+        var parameters = new DialogParameters<ClienteModal>
+        {
+            { x => x.Entity, cliente },
+            { x => x.IsEdit, true }
+        };
+
+        var dialog = await DialogService.ShowAsync<ClienteModal>("Editar Cliente", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data is Cliente editedCliente)
+        {
+            var response = await ClienteHandler.UpdateAsync(editedCliente);
+            
+            if (response.IsSuccess)
+            {
+                Snackbar.Add("Cliente atualizado com sucesso!", Severity.Success);
+                await LoadData();
+            }
+            else
+            {
+                Snackbar.Add(response.Message ?? "Erro ao atualizar cliente", Severity.Error);
+            }
+        }
+    }
+
+    private async Task ConfirmDelete(Cliente cliente)
+    {
+        var parameters = new DialogParameters
+        {
+            { "ContentText", $"Tem certeza que deseja excluir o cliente '{cliente.Nome}'?" },
+            { "ButtonText", "Excluir" },
+            { "Color", Color.Error }
+        };
+
+        var dialog = await DialogService.ShowAsync<MudMessageBox>("Confirmar Exclusão", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var response = await ClienteHandler.DeleteAsync(cliente.Id);
+            
+            if (response.IsSuccess)
+            {
+                Snackbar.Add("Cliente excluído com sucesso!", Severity.Success);
+                await LoadData();
+            }
+            else
+            {
+                Snackbar.Add(response.Message ?? "Erro ao excluir cliente", Severity.Error);
+            }
+        }
+    }
+}

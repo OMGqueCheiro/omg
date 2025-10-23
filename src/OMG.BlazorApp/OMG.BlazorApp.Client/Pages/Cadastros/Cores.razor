@@ -1,0 +1,136 @@
+@page "/cadastros/cores"
+@inject ICrudHandler<Cor> Handler
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<AuthorizeView>
+    <Authorized>
+        <CrudDataGrid TEntity="Cor"
+                      Title="Cores"
+                      Subtitle="Gerencie as cores do sistema"
+                      Items="@_items"
+                      Loading="@_loading"
+                      OnCreateClick="@OpenCreateModal"
+                      OnEditClick="@OpenEditModal"
+                      OnDeleteClick="@ConfirmDelete">
+            <PropertyColumn T="Cor" TProperty="int" Property="x => x.Id" Title="ID" />
+            <PropertyColumn T="Cor" TProperty="string" Property="x => x.Nome" Title="Nome" />
+        </CrudDataGrid>
+    </Authorized>
+    <NotAuthorized>
+        <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+            <MudAlert Severity="Severity.Warning">
+                Você precisa estar autenticado para acessar esta página.
+            </MudAlert>
+        </MudContainer>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private List<Cor> _items = new();
+    private bool _loading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        _loading = true;
+        var response = await Handler.GetAllAsync();
+        
+        if (response.IsSuccess && response.Data != null)
+        {
+            _items = response.Data.ToList();
+        }
+        else
+        {
+            Snackbar.Add(response.Message ?? "Erro ao carregar dados", Severity.Error);
+        }
+        
+        _loading = false;
+    }
+
+    private async Task OpenCreateModal()
+    {
+        var parameters = new DialogParameters<CorModal>
+        {
+            { x => x.Entity, new Cor() },
+            { x => x.IsEdit, false }
+        };
+
+        var dialog = await DialogService.ShowAsync<CorModal>("Nova Cor", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data is Cor cor)
+        {
+            var response = await Handler.CreateAsync(cor);
+            
+            if (response.IsSuccess)
+            {
+                Snackbar.Add("Cor criada com sucesso!", Severity.Success);
+                await LoadData();
+            }
+            else
+            {
+                Snackbar.Add(response.Message ?? "Erro ao criar cor", Severity.Error);
+            }
+        }
+    }
+
+    private async Task OpenEditModal(Cor entity)
+    {
+        var parameters = new DialogParameters<CorModal>
+        {
+            { x => x.Entity, entity },
+            { x => x.IsEdit, true }
+        };
+
+        var dialog = await DialogService.ShowAsync<CorModal>("Editar Cor", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data is Cor editedCor)
+        {
+            var response = await Handler.UpdateAsync(editedCor);
+            
+            if (response.IsSuccess)
+            {
+                Snackbar.Add("Cor atualizada com sucesso!", Severity.Success);
+                await LoadData();
+            }
+            else
+            {
+                Snackbar.Add(response.Message ?? "Erro ao atualizar cor", Severity.Error);
+            }
+        }
+    }
+
+    private async Task ConfirmDelete(Cor entity)
+    {
+        var parameters = new DialogParameters
+        {
+            { "ContentText", $"Tem certeza que deseja excluir a cor '{entity.Nome}'?" },
+            { "ButtonText", "Excluir" },
+            { "Color", Color.Error }
+        };
+
+        var dialog = await DialogService.ShowAsync<MudMessageBox>("Confirmar Exclusão", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var response = await Handler.DeleteAsync(entity.Id);
+            
+            if (response.IsSuccess)
+            {
+                Snackbar.Add("Cor excluída com sucesso!", Severity.Success);
+                await LoadData();
+            }
+            else
+            {
+                Snackbar.Add(response.Message ?? "Erro ao excluir cor", Severity.Error);
+            }
+        }
+    }
+}

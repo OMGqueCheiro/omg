@@ -1,0 +1,136 @@
+@page "/cadastros/embalagens"
+@inject ICrudHandler<Embalagem> Handler
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<AuthorizeView>
+    <Authorized>
+        <CrudDataGrid TEntity="Embalagem"
+                      Title="Embalagens"
+                      Subtitle="Gerencie as embalagens do sistema"
+                      Items="@_items"
+                      Loading="@_loading"
+                      OnCreateClick="@OpenCreateModal"
+                      OnEditClick="@OpenEditModal"
+                      OnDeleteClick="@ConfirmDelete">
+            <PropertyColumn T="Embalagem" TProperty="int" Property="x => x.Id" Title="ID" />
+            <PropertyColumn T="Embalagem" TProperty="string" Property="x => x.Descricao" Title="Descrição" />
+        </CrudDataGrid>
+    </Authorized>
+    <NotAuthorized>
+        <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+            <MudAlert Severity="Severity.Warning">
+                Você precisa estar autenticado para acessar esta página.
+            </MudAlert>
+        </MudContainer>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private List<Embalagem> _items = new();
+    private bool _loading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        _loading = true;
+        var response = await Handler.GetAllAsync();
+        
+        if (response.IsSuccess && response.Data != null)
+        {
+            _items = response.Data.ToList();
+        }
+        else
+        {
+            Snackbar.Add(response.Message ?? "Erro ao carregar dados", Severity.Error);
+        }
+        
+        _loading = false;
+    }
+
+    private async Task OpenCreateModal()
+    {
+        var parameters = new DialogParameters<EmbalagemModal>
+        {
+            { x => x.Entity, new Embalagem() },
+            { x => x.IsEdit, false }
+        };
+
+        var dialog = await DialogService.ShowAsync<EmbalagemModal>("Nova Embalagem", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data is Embalagem embalagem)
+        {
+            var response = await Handler.CreateAsync(embalagem);
+            
+            if (response.IsSuccess)
+            {
+                Snackbar.Add("Embalagem criada com sucesso!", Severity.Success);
+                await LoadData();
+            }
+            else
+            {
+                Snackbar.Add(response.Message ?? "Erro ao criar embalagem", Severity.Error);
+            }
+        }
+    }
+
+    private async Task OpenEditModal(Embalagem entity)
+    {
+        var parameters = new DialogParameters<EmbalagemModal>
+        {
+            { x => x.Entity, entity },
+            { x => x.IsEdit, true }
+        };
+
+        var dialog = await DialogService.ShowAsync<EmbalagemModal>("Editar Embalagem", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data is Embalagem editedEmbalagem)
+        {
+            var response = await Handler.UpdateAsync(editedEmbalagem);
+            
+            if (response.IsSuccess)
+            {
+                Snackbar.Add("Embalagem atualizada com sucesso!", Severity.Success);
+                await LoadData();
+            }
+            else
+            {
+                Snackbar.Add(response.Message ?? "Erro ao atualizar embalagem", Severity.Error);
+            }
+        }
+    }
+
+    private async Task ConfirmDelete(Embalagem entity)
+    {
+        var parameters = new DialogParameters
+        {
+            { "ContentText", $"Tem certeza que deseja excluir a embalagem '{entity.Descricao}'?" },
+            { "ButtonText", "Excluir" },
+            { "Color", Color.Error }
+        };
+
+        var dialog = await DialogService.ShowAsync<MudMessageBox>("Confirmar Exclusão", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var response = await Handler.DeleteAsync(entity.Id);
+            
+            if (response.IsSuccess)
+            {
+                Snackbar.Add("Embalagem excluída com sucesso!", Severity.Success);
+                await LoadData();
+            }
+            else
+            {
+                Snackbar.Add(response.Message ?? "Erro ao excluir embalagem", Severity.Error);
+            }
+        }
+    }
+}

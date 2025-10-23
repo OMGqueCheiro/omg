@@ -1,0 +1,136 @@
+@page "/cadastros/formatos"
+@inject ICrudHandler<Formato> Handler
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<AuthorizeView>
+    <Authorized>
+        <CrudDataGrid TEntity="Formato"
+                      Title="Formatos"
+                      Subtitle="Gerencie os formatos do sistema"
+                      Items="@_items"
+                      Loading="@_loading"
+                      OnCreateClick="@OpenCreateModal"
+                      OnEditClick="@OpenEditModal"
+                      OnDeleteClick="@ConfirmDelete">
+            <PropertyColumn T="Formato" TProperty="int" Property="x => x.Id" Title="ID" />
+            <PropertyColumn T="Formato" TProperty="string" Property="x => x.Descricao" Title="Descrição" />
+        </CrudDataGrid>
+    </Authorized>
+    <NotAuthorized>
+        <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+            <MudAlert Severity="Severity.Warning">
+                Você precisa estar autenticado para acessar esta página.
+            </MudAlert>
+        </MudContainer>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private List<Formato> _items = new();
+    private bool _loading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        _loading = true;
+        var response = await Handler.GetAllAsync();
+        
+        if (response.IsSuccess && response.Data != null)
+        {
+            _items = response.Data.ToList();
+        }
+        else
+        {
+            Snackbar.Add(response.Message ?? "Erro ao carregar dados", Severity.Error);
+        }
+        
+        _loading = false;
+    }
+
+    private async Task OpenCreateModal()
+    {
+        var parameters = new DialogParameters<FormatoModal>
+        {
+            { x => x.Entity, new Formato() },
+            { x => x.IsEdit, false }
+        };
+
+        var dialog = await DialogService.ShowAsync<FormatoModal>("Novo Formato", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data is Formato formato)
+        {
+            var response = await Handler.CreateAsync(formato);
+            
+            if (response.IsSuccess)
+            {
+                Snackbar.Add("Formato criado com sucesso!", Severity.Success);
+                await LoadData();
+            }
+            else
+            {
+                Snackbar.Add(response.Message ?? "Erro ao criar formato", Severity.Error);
+            }
+        }
+    }
+
+    private async Task OpenEditModal(Formato entity)
+    {
+        var parameters = new DialogParameters<FormatoModal>
+        {
+            { x => x.Entity, entity },
+            { x => x.IsEdit, true }
+        };
+
+        var dialog = await DialogService.ShowAsync<FormatoModal>("Editar Formato", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data is Formato editedFormato)
+        {
+            var response = await Handler.UpdateAsync(editedFormato);
+            
+            if (response.IsSuccess)
+            {
+                Snackbar.Add("Formato atualizado com sucesso!", Severity.Success);
+                await LoadData();
+            }
+            else
+            {
+                Snackbar.Add(response.Message ?? "Erro ao atualizar formato", Severity.Error);
+            }
+        }
+    }
+
+    private async Task ConfirmDelete(Formato entity)
+    {
+        var parameters = new DialogParameters
+        {
+            { "ContentText", $"Tem certeza que deseja excluir o formato '{entity.Descricao}'?" },
+            { "ButtonText", "Excluir" },
+            { "Color", Color.Error }
+        };
+
+        var dialog = await DialogService.ShowAsync<MudMessageBox>("Confirmar Exclusão", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var response = await Handler.DeleteAsync(entity.Id);
+            
+            if (response.IsSuccess)
+            {
+                Snackbar.Add("Formato excluído com sucesso!", Severity.Success);
+                await LoadData();
+            }
+            else
+            {
+                Snackbar.Add(response.Message ?? "Erro ao excluir formato", Severity.Error);
+            }
+        }
+    }
+}

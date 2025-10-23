@@ -7,6 +7,7 @@ using OMG.BlazorApp.Client;
 using OMG.BlazorApp.Client.Handlers;
 using OMG.BlazorApp.Client.Authentication;
 using OMG.Core.Handler;
+using OMG.Core.Entities;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -45,5 +46,18 @@ builder.Services.AddScoped<IClienteHandler, ClienteHandler>();
 builder.Services.AddScoped<IPedidoHandler, PedidoHandler>();
 builder.Services.AddScoped(typeof(IBaseSearchHandler<>), typeof(BaseSearchHandler<>));
 
-await builder.Build().RunAsync();
+// Registrar handlers CRUD genéricos
+builder.Services.AddScoped<ICrudHandler<Cliente>>(sp => 
+    new CrudHandler<Cliente>(sp.GetRequiredService<HttpClient>(), "Cliente"));
+builder.Services.AddScoped<ICrudHandler<Produto>>(sp => 
+    new CrudHandler<Produto>(sp.GetRequiredService<HttpClient>(), "Produto"));
+builder.Services.AddScoped<ICrudHandler<Formato>>(sp => 
+    new CrudHandler<Formato>(sp.GetRequiredService<HttpClient>(), "Formato"));
+builder.Services.AddScoped<ICrudHandler<Cor>>(sp => 
+    new CrudHandler<Cor>(sp.GetRequiredService<HttpClient>(), "Cor"));
+builder.Services.AddScoped<ICrudHandler<Aroma>>(sp => 
+    new CrudHandler<Aroma>(sp.GetRequiredService<HttpClient>(), "Aroma"));
+builder.Services.AddScoped<ICrudHandler<Embalagem>>(sp => 
+    new CrudHandler<Embalagem>(sp.GetRequiredService<HttpClient>(), "Embalagem"));
 
+await builder.Build().RunAsync();

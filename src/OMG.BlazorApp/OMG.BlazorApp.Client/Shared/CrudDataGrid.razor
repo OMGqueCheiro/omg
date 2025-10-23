@@ -1,0 +1,96 @@
+@typeparam TEntity where TEntity : class, new()
+@using OMG.Core.Base
+@using Microsoft.AspNetCore.Components
+
+<PageTitle>@Title</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+    <MudPaper Elevation="0" Class="pa-6" Style="border-radius: 16px; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); border: 1px solid rgba(0,0,0,0.08);">
+        <div class="d-flex justify-space-between align-center mb-6">
+            <div>
+                <MudText Typo="Typo.h4" Style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: bold;">
+                    @Title
+                </MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mt-1">
+                    @Subtitle
+                </MudText>
+            </div>
+            <MudButton Variant="Variant.Filled" 
+                       Color="Color.Primary" 
+                       StartIcon="@Icons.Material.Filled.Add"
+                       Size="Size.Large"
+                       Style="border-radius: 12px; text-transform: none; font-weight: 600;"
+                       OnClick="@OnCreateClick">
+                Novo
+            </MudButton>
+        </div>
+
+        <MudDataGrid T="TEntity" 
+                     Items="@Items" 
+                     Loading="@Loading"
+                     Hover="true"
+                     ReadOnly="true"
+                     SortMode="@SortMode.Multiple"
+                     Filterable="true"
+                     FilterMode="@DataGridFilterMode.ColumnFilterRow"
+                     Style="border-radius: 12px;">
+            <Columns>
+                @ChildContent
+                
+                <TemplateColumn Title="Ações" Sortable="false" Filterable="false">
+                    <CellTemplate>
+                        <MudStack Row="true" Spacing="1">
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit" 
+                                          Size="Size.Small" 
+                                          Color="Color.Primary"
+                                          OnClick="@(() => HandleEditClick(context.Item))" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete" 
+                                          Size="Size.Small" 
+                                          Color="Color.Error"
+                                          OnClick="@(() => HandleDeleteClick(context.Item))" />
+                        </MudStack>
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+            <PagerContent>
+                <MudDataGridPager T="TEntity" PageSizeOptions="new int[] { 10, 25, 50, 100 }" />
+            </PagerContent>
+        </MudDataGrid>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    [Parameter, EditorRequired]
+    public required string Title { get; set; }
+    
+    [Parameter]
+    public string Subtitle { get; set; } = "Gerencie os registros";
+    
+    [Parameter, EditorRequired]
+    public required IEnumerable<TEntity> Items { get; set; }
+    
+    [Parameter, EditorRequired]
+    public required RenderFragment ChildContent { get; set; }
+    
+    [Parameter, EditorRequired]
+    public required EventCallback OnCreateClick { get; set; }
+    
+    [Parameter, EditorRequired]
+    public required EventCallback<TEntity> OnEditClick { get; set; }
+    
+    [Parameter, EditorRequired]
+    public required EventCallback<TEntity> OnDeleteClick { get; set; }
+    
+    [Parameter]
+    public bool Loading { get; set; }
+    
+    private async Task HandleEditClick(TEntity item)
+    {
+        await OnEditClick.InvokeAsync(item);
+    }
+    
+    private async Task HandleDeleteClick(TEntity item)
+    {
+        await OnDeleteClick.InvokeAsync(item);
+    }
+}

@@ -1,0 +1,136 @@
+@page "/cadastros/aromas"
+@inject ICrudHandler<Aroma> Handler
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<AuthorizeView>
+    <Authorized>
+        <CrudDataGrid TEntity="Aroma"
+                      Title="Aromas"
+                      Subtitle="Gerencie os aromas do sistema"
+                      Items="@_items"
+                      Loading="@_loading"
+                      OnCreateClick="@OpenCreateModal"
+                      OnEditClick="@OpenEditModal"
+                      OnDeleteClick="@ConfirmDelete">
+            <PropertyColumn T="Aroma" TProperty="int" Property="x => x.Id" Title="ID" />
+            <PropertyColumn T="Aroma" TProperty="string" Property="x => x.Nome" Title="Nome" />
+        </CrudDataGrid>
+    </Authorized>
+    <NotAuthorized>
+        <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+            <MudAlert Severity="Severity.Warning">
+                Você precisa estar autenticado para acessar esta página.
+            </MudAlert>
+        </MudContainer>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private List<Aroma> _items = new();
+    private bool _loading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        _loading = true;
+        var response = await Handler.GetAllAsync();
+        
+        if (response.IsSuccess && response.Data != null)
+        {
+            _items = response.Data.ToList();
+        }
+        else
+        {
+            Snackbar.Add(response.Message ?? "Erro ao carregar dados", Severity.Error);
+        }
+        
+        _loading = false;
+    }
+
+    private async Task OpenCreateModal()
+    {
+        var parameters = new DialogParameters<AromaModal>
+        {
+            { x => x.Entity, new Aroma() },
+            { x => x.IsEdit, false }
+        };
+
+        var dialog = await DialogService.ShowAsync<AromaModal>("Novo Aroma", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data is Aroma aroma)
+        {
+            var response = await Handler.CreateAsync(aroma);
+            
+            if (response.IsSuccess)
+            {
+                Snackbar.Add("Aroma criado com sucesso!", Severity.Success);
+                await LoadData();
+            }
+            else
+            {
+                Snackbar.Add(response.Message ?? "Erro ao criar aroma", Severity.Error);
+            }
+        }
+    }
+
+    private async Task OpenEditModal(Aroma entity)
+    {
+        var parameters = new DialogParameters<AromaModal>
+        {
+            { x => x.Entity, entity },
+            { x => x.IsEdit, true }
+        };
+
+        var dialog = await DialogService.ShowAsync<AromaModal>("Editar Aroma", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data is Aroma editedAroma)
+        {
+            var response = await Handler.UpdateAsync(editedAroma);
+            
+            if (response.IsSuccess)
+            {
+                Snackbar.Add("Aroma atualizado com sucesso!", Severity.Success);
+                await LoadData();
+            }
+            else
+            {
+                Snackbar.Add(response.Message ?? "Erro ao atualizar aroma", Severity.Error);
+            }
+        }
+    }
+
+    private async Task ConfirmDelete(Aroma entity)
+    {
+        var parameters = new DialogParameters
+        {
+            { "ContentText", $"Tem certeza que deseja excluir o aroma '{entity.Nome}'?" },
+            { "ButtonText", "Excluir" },
+            { "Color", Color.Error }
+        };
+
+        var dialog = await DialogService.ShowAsync<MudMessageBox>("Confirmar Exclusão", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var response = await Handler.DeleteAsync(entity.Id);
+            
+            if (response.IsSuccess)
+            {
+                Snackbar.Add("Aroma excluído com sucesso!", Severity.Success);
+                await LoadData();
+            }
+            else
+            {
+                Snackbar.Add(response.Message ?? "Erro ao excluir aroma", Severity.Error);
+            }
+        }
+    }
+}

@@ -1,0 +1,54 @@
+@using MudBlazor
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            @(IsEdit ? "Editar Aroma" : "Novo Aroma")
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm @ref="_form" @bind-IsValid="@_isValid">
+            <MudTextField @bind-Value="Entity.Nome"
+                          Label="Nome"
+                          Required="true"
+                          RequiredError="Nome é obrigatório"
+                          Variant="Variant.Outlined"
+                          Margin="Margin.Dense" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancelar</MudButton>
+        <MudButton Color="Color.Primary" 
+                   Variant="Variant.Filled" 
+                   OnClick="Submit"
+                   Disabled="@(!_isValid)">
+            Salvar
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public required Aroma Entity { get; set; }
+
+    [Parameter]
+    public bool IsEdit { get; set; } = false;
+
+    private MudForm? _form;
+    private bool _isValid;
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task Submit()
+    {
+        await _form!.Validate();
+        
+        if (_isValid)
+        {
+            MudDialog.Close(DialogResult.Ok(Entity));
+        }
+    }
+}

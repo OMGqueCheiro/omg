@@ -13,12 +13,41 @@
                     Style="border-radius: 8px; margin-bottom: 4px;">
             Dashboard
         </MudNavLink>
-        <MudNavLink Href="pedidos" 
-                    Match="NavLinkMatch.Prefix" 
-                    Icon="@Icons.Material.Filled.ShoppingCart"
-                    Style="border-radius: 8px; margin-bottom: 4px;">
-            Pedidos
-        </MudNavLink>
+        
+        <MudNavGroup Title="Cadastros" 
+                     Icon="@Icons.Material.Filled.AppRegistration"
+                     Style="border-radius: 8px; margin-bottom: 4px;">
+            <MudNavLink Href="cadastros/clientes" 
+                        Icon="@Icons.Material.Filled.People"
+                        Style="border-radius: 8px; margin-bottom: 2px;">
+                Clientes
+            </MudNavLink>
+            <MudNavLink Href="cadastros/produtos" 
+                        Icon="@Icons.Material.Filled.Inventory"
+                        Style="border-radius: 8px; margin-bottom: 2px;">
+                Produtos
+            </MudNavLink>
+            <MudNavLink Href="cadastros/formatos" 
+                        Icon="@Icons.Material.Filled.Category"
+                        Style="border-radius: 8px; margin-bottom: 2px;">
+                Formatos
+            </MudNavLink>
+            <MudNavLink Href="cadastros/cores" 
+                        Icon="@Icons.Material.Filled.Palette"
+                        Style="border-radius: 8px; margin-bottom: 2px;">
+                Cores
+            </MudNavLink>
+            <MudNavLink Href="cadastros/aromas" 
+                        Icon="@Icons.Material.Filled.LocalFlorist"
+                        Style="border-radius: 8px; margin-bottom: 2px;">
+                Aromas
+            </MudNavLink>
+            <MudNavLink Href="cadastros/embalagens" 
+                        Icon="@Icons.Material.Filled.Inventory2"
+                        Style="border-radius: 8px; margin-bottom: 2px;">
+                Embalagens
+            </MudNavLink>
+        </MudNavGroup>
     </MudNavMenu>
 </div>
 
@@ -38,5 +67,9 @@
     
     .mud-nav-menu-modern .mud-nav-link.active .mud-icon-root {
         color: white !important;
+    }
+    
+    .mud-nav-menu-modern .mud-nav-group {
+        transition: all 0.3s ease;
     }
 </style>
