@@ -109,13 +109,30 @@
         if (info.Item == null)
             return;
 
-        if (info.Item.Status == Enum.Parse<EPedidoStatus>(info.DropzoneIdentifier))
+        var newStatus = Enum.Parse<EPedidoStatus>(info.DropzoneIdentifier);
+        
+        if (info.Item.Status == newStatus)
             return;
 
-        var resultApi = await _pedidoHandler.ChangeStatus(new PedidoChangeStatusRequest(info.Item.PedidoId, Enum.Parse<EPedidoStatus>(info.DropzoneIdentifier)));
+        var resultApi = await _pedidoHandler.ChangeStatus(new PedidoChangeStatusRequest(info.Item.PedidoId, newStatus));
 
         if (resultApi.IsSuccess)
-            info.Item.Status = Enum.Parse<EPedidoStatus>(info.DropzoneIdentifier);
+        {
+            // Atualiza o status do item
+            info.Item.Status = newStatus;
+            
+            // Força a atualização da UI removendo e re-adicionando o item
+            var item = info.Item;
+            _pedidos.Remove(item);
+            _pedidos.Add(item);
+            
+            // Atualiza o container e o componente
+            await InvokeAsync(() =>
+            {
+                _dropContainer?.Refresh();
+                StateHasChanged();
+            });
+        }
     }
 
     private List<PedidoKanbanSection> _sections = new()

@@ -17,7 +17,7 @@ public class EventRepository(OMGDbContext context) : IEventRepository
             NewStatus = newStatus,
             UsuarioNome = usuarioNome,
             UsuarioEmail = usuarioEmail,
-            DataCriacao = DateTime.Now
+            DataCriacao = DateTime.UtcNow
         });
 
         await _context.SaveChangesAsync();

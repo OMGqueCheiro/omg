@@ -17,7 +17,7 @@ public static class UserIdentityDI
     public static IServiceCollection AddUserIdentity(this IServiceCollection services, string connectionString)
     {
         services.AddDbContext<UserIdentityDBContext>(options =>
-            options.UseSqlServer(connectionString));
+            options.UseNpgsql(connectionString));
 
         services.AddIdentity<ApplicationUser, IdentityRole>(options =>
         {

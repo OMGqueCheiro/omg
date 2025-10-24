@@ -2,9 +2,9 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using OMG.Repository;
 
 #nullable disable
@@ -12,221 +12,218 @@ using OMG.Repository;
 namespace OMG.Repository.Migrations
 {
     [DbContext(typeof(OMGDbContext))]
-    [Migration("20250224191652_InitialCatalog")]
-    partial class InitialCatalog
+    [Migration("20251024185848_InitialPostgreSQL")]
+    partial class InitialPostgreSQL
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.2")
-                .HasAnnotation("Proxies:ChangeTracking", false)
-                .HasAnnotation("Proxies:CheckEquality", false)
-                .HasAnnotation("Proxies:LazyLoading", true)
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("ProductVersion", "9.0.10")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("OMG.Domain.Entities.Aroma", b =>
+            modelBuilder.Entity("OMG.Core.Entities.Aroma", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
+                        .HasColumnType("character varying(250)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("IsDeleted")
-                        .HasFilter("IsDeleted = 0");
+                        .HasFilter("\"IsDeleted\" = false");
 
                     b.HasIndex("Nome");
 
                     b.ToTable("Aromas");
                 });
 
-            modelBuilder.Entity("OMG.Domain.Entities.Cliente", b =>
+            modelBuilder.Entity("OMG.Core.Entities.Cliente", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Endereco")
                         .IsRequired()
                         .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
+                        .HasColumnType("character varying(300)");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasColumnType("character varying(150)");
 
                     b.Property<string>("Telefone")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("IsDeleted")
-                        .HasFilter("IsDeleted = 0");
+                        .HasFilter("\"IsDeleted\" = false");
 
                     b.HasIndex("Nome");
 
                     b.ToTable("Clientes");
                 });
 
-            modelBuilder.Entity("OMG.Domain.Entities.Cor", b =>
+            modelBuilder.Entity("OMG.Core.Entities.Cor", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
+                        .HasColumnType("character varying(250)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("IsDeleted")
-                        .HasFilter("IsDeleted = 0");
+                        .HasFilter("\"IsDeleted\" = false");
 
                     b.HasIndex("Nome");
 
                     b.ToTable("Cores");
                 });
 
-            modelBuilder.Entity("OMG.Domain.Entities.Embalagem", b =>
+            modelBuilder.Entity("OMG.Core.Entities.Embalagem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Descricao")
                         .IsRequired()
                         .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
+                        .HasColumnType("character varying(250)");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Descricao");
 
                     b.HasIndex("IsDeleted")
-                        .HasFilter("IsDeleted = 0");
+                        .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("Embalagens");
                 });
 
-            modelBuilder.Entity("OMG.Domain.Entities.Formato", b =>
+            modelBuilder.Entity("OMG.Core.Entities.Formato", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Descricao")
                         .IsRequired()
                         .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
+                        .HasColumnType("character varying(250)");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Descricao");
 
                     b.HasIndex("IsDeleted")
-                        .HasFilter("IsDeleted = 0");
+                        .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("Formatos");
                 });
 
-            modelBuilder.Entity("OMG.Domain.Entities.Pedido", b =>
+            modelBuilder.Entity("OMG.Core.Entities.Pedido", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ClienteId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<DateOnly>("DataEntrega")
                         .HasColumnType("date");
 
                     b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("Desconto")
                         .ValueGeneratedOnAdd()
                         .HasPrecision(9, 2)
-                        .HasColumnType("decimal(9,2)")
+                        .HasColumnType("numeric(9,2)")
                         .HasDefaultValue(0m);
 
                     b.Property<decimal>("Entrada")
                         .ValueGeneratedOnAdd()
                         .HasPrecision(9, 2)
-                        .HasColumnType("decimal(9,2)")
+                        .HasColumnType("numeric(9,2)")
                         .HasDefaultValue(0m);
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsPermuta")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasDefaultValue(false);
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("ValorTotal")
                         .ValueGeneratedOnAdd()
                         .HasPrecision(9, 2)
-                        .HasColumnType("decimal(9,2)")
+                        .HasColumnType("numeric(9,2)")
                         .HasDefaultValue(0m);
 
                     b.HasKey("Id");
@@ -234,45 +231,45 @@ namespace OMG.Repository.Migrations
                     b.HasIndex("ClienteId");
 
                     b.HasIndex("IsDeleted")
-                        .HasFilter("IsDeleted = 0");
+                        .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("Pedidos");
                 });
 
-            modelBuilder.Entity("OMG.Domain.Entities.PedidoItem", b =>
+            modelBuilder.Entity("OMG.Core.Entities.PedidoItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("AromaId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("CorId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("EmbalagemId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("FormatoId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<int>("PedidoId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("ProdutoId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("Quantidade")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -285,7 +282,7 @@ namespace OMG.Repository.Migrations
                     b.HasIndex("FormatoId");
 
                     b.HasIndex("IsDeleted")
-                        .HasFilter("IsDeleted = 0");
+                        .HasFilter("\"IsDeleted\" = false");
 
                     b.HasIndex("PedidoId");
 
@@ -294,31 +291,31 @@ namespace OMG.Repository.Migrations
                     b.ToTable("PedidoItens");
                 });
 
-            modelBuilder.Entity("OMG.Domain.Entities.Produto", b =>
+            modelBuilder.Entity("OMG.Core.Entities.Produto", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Descricao")
                         .IsRequired()
                         .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
+                        .HasColumnType("character varying(250)");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Descricao");
 
                     b.HasIndex("IsDeleted")
-                        .HasFilter("IsDeleted = 0");
+                        .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("Produtos");
                 });
@@ -327,31 +324,39 @@ namespace OMG.Repository.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("DataCriacao")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("IdPedido")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("NewStatus")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("OldStatus")
                         .HasMaxLength(250)
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UsuarioEmail")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("UsuarioNome")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.HasKey("Id");
 
                     b.ToTable("EventChangeStatus");
                 });
 
-            modelBuilder.Entity("OMG.Domain.Entities.Pedido", b =>
+            modelBuilder.Entity("OMG.Core.Entities.Pedido", b =>
                 {
-                    b.HasOne("OMG.Domain.Entities.Cliente", "Cliente")
+                    b.HasOne("OMG.Core.Entities.Cliente", "Cliente")
                         .WithMany()
                         .HasForeignKey("ClienteId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -360,39 +365,39 @@ namespace OMG.Repository.Migrations
                     b.Navigation("Cliente");
                 });
 
-            modelBuilder.Entity("OMG.Domain.Entities.PedidoItem", b =>
+            modelBuilder.Entity("OMG.Core.Entities.PedidoItem", b =>
                 {
-                    b.HasOne("OMG.Domain.Entities.Aroma", "Aroma")
+                    b.HasOne("OMG.Core.Entities.Aroma", "Aroma")
                         .WithMany()
                         .HasForeignKey("AromaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("OMG.Domain.Entities.Cor", "Cor")
+                    b.HasOne("OMG.Core.Entities.Cor", "Cor")
                         .WithMany()
                         .HasForeignKey("CorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("OMG.Domain.Entities.Embalagem", "Embalagem")
+                    b.HasOne("OMG.Core.Entities.Embalagem", "Embalagem")
                         .WithMany()
                         .HasForeignKey("EmbalagemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("OMG.Domain.Entities.Formato", "Formato")
+                    b.HasOne("OMG.Core.Entities.Formato", "Formato")
                         .WithMany()
                         .HasForeignKey("FormatoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("OMG.Domain.Entities.Pedido", null)
+                    b.HasOne("OMG.Core.Entities.Pedido", null)
                         .WithMany("PedidoItens")
                         .HasForeignKey("PedidoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("OMG.Domain.Entities.Produto", "Produto")
+                    b.HasOne("OMG.Core.Entities.Produto", "Produto")
                         .WithMany()
                         .HasForeignKey("ProdutoId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -409,7 +414,7 @@ namespace OMG.Repository.Migrations
                     b.Navigation("Produto");
                 });
 
-            modelBuilder.Entity("OMG.Domain.Entities.Pedido", b =>
+            modelBuilder.Entity("OMG.Core.Entities.Pedido", b =>
                 {
                     b.Navigation("PedidoItens");
                 });

@@ -16,6 +16,6 @@ public class AromaMap : IEntityTypeConfiguration<Aroma>
 
         builder.HasQueryFilter(x => !x.IsDeleted);
         builder.HasIndex(i => i.IsDeleted)
-            .HasFilter("IsDeleted = 0");
+            .HasFilter("\"IsDeleted\" = false");
     }
 }

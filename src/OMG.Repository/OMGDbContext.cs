@@ -24,6 +24,33 @@ public class OMGDbContext : DbContext
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(OMGDbContext).Assembly);
     }
+
+    public override int SaveChanges()
+    {
+        ConvertDatesToUtc();
+        return base.SaveChanges();
+    }
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        ConvertDatesToUtc();
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
+    private void ConvertDatesToUtc()
+    {
+        foreach (var entry in ChangeTracker.Entries())
+        {
+            foreach (var property in entry.Properties)
+            {
+                if (property.CurrentValue is DateTime dateTime && dateTime.Kind == DateTimeKind.Local)
+                {
+                    property.CurrentValue = dateTime.ToUniversalTime();
+                }
+            }
+        }
+    }
+
     public async Task SeedData()
     {
         if (!await Clientes.AnyAsync())

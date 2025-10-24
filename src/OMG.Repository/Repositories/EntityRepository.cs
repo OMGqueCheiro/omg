@@ -24,7 +24,7 @@ public class EntityRepository<IEntity>(OMGDbContext dbContext) : IRepositoryEnti
         if (entity == null) return false;
 
         entity.IsDeleted = true;
-        entity.DeletedAt = DateTime.Now;
+        entity.DeletedAt = DateTime.UtcNow;
 
         await _dbContext.SaveChangesAsync();
 

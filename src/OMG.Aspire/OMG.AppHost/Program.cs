@@ -1,10 +1,16 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-var sql = builder.AddSqlServer("sql-server-db-omg")
-                 .WithImageTag("2022-latest")
-                 .WithLifetime(ContainerLifetime.Persistent);
+var postgres = builder.AddPostgres("postgres-db-omg")
+                      .WithImageTag("17-alpine")
+                      .WithDataVolume("omg-postgres-data")
+                      .WithLifetime(ContainerLifetime.Persistent);
 
-var db = sql.AddDatabase("database", "OMGdb");
+var db = postgres.AddDatabase("database", "OMGdb");
+
+// PgWeb - Interface web para PostgreSQL
+var pgweb = builder.AddContainer("pgweb", "sosedoff/pgweb")
+                   .WithHttpEndpoint(port: 8081, targetPort: 8081, name: "pgweb")
+                   .WithLifetime(ContainerLifetime.Persistent);
 
 var migrations = builder.AddProject<Projects.OMG_MigrationWorker>("omg-migrationworker")
     .WithReference(db)

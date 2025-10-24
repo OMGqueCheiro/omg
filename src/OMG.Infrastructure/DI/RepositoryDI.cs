@@ -15,11 +15,11 @@ public static class RepositoryDI
 {
     /// <summary>
     /// Registra o DbContext e todos os repositórios
-    /// Usa Aspire SQL Server integration para service discovery
+    /// Usa Aspire PostgreSQL integration para service discovery
     /// </summary>
     public static IHostApplicationBuilder AddOMGRepository(this IHostApplicationBuilder builder)
     {
-        builder.AddSqlServerDbContext<OMGDbContext>("database", configureDbContextOptions: option =>
+        builder.AddNpgsqlDbContext<OMGDbContext>("database", configureDbContextOptions: option =>
         {
             option.UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
             option.UseLazyLoadingProxies(); // Habilita proxies dinâmicos para lazy loading

@@ -1,18 +1,18 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace OMG.UserIdentity.Context;
+namespace OMG.Repository;
 
-public class UserIdentityDBContextFactory : IDesignTimeDbContextFactory<UserIdentityDBContext>
+public class OMGDbContextFactory : IDesignTimeDbContextFactory<OMGDbContext>
 {
-    public UserIdentityDBContext CreateDbContext(string[] args)
+    public OMGDbContext CreateDbContext(string[] args)
     {
-        var optionsBuilder = new DbContextOptionsBuilder<UserIdentityDBContext>();
+        var optionsBuilder = new DbContextOptionsBuilder<OMGDbContext>();
         
         // Connection string para design-time (migrations)
         // Em runtime, isso será substituído pela connection string do Aspire
         optionsBuilder.UseNpgsql("Host=localhost;Database=OMGdb;Username=postgres;Password=postgres");
 
-        return new UserIdentityDBContext(optionsBuilder.Options);
+        return new OMGDbContext(optionsBuilder.Options);
     }
 }
