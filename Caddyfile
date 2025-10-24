@@ -1,10 +1,13 @@
 # Caddyfile para OMG - Produção
-# HTTPS com certificado self-signed para IP
+# HTTP apenas (sem HTTPS por enquanto - IP não suporta certificados válidos)
 
 # Configuração global
 {
     # Admin API desabilitada por segurança
     admin off
+    
+    # Desabilitar HTTPS automático
+    auto_https off
     
     # Log em formato JSON
     log {
@@ -12,15 +15,11 @@
     }
 }
 
-# Servidor principal - HTTPS com self-signed cert
-https://201.23.75.91 {
-    # TLS self-signed (vai mostrar warning no browser)
-    tls internal
-
+# Servidor HTTP
+http://201.23.75.91, http://:80 {
     # Headers de segurança
     header {
         # Security headers
-        Strict-Transport-Security "max-age=31536000; includeSubDomains"
         X-Content-Type-Options "nosniff"
         X-Frame-Options "SAMEORIGIN"
         X-XSS-Protection "1; mode=block"
@@ -44,7 +43,7 @@ https://201.23.75.91 {
         health_interval 30s
         health_timeout 10s
         
-        # Headers para WebSocket e SignalR
+        # Headers
         header_up Host {host}
         header_up X-Real-IP {remote_host}
         header_up X-Forwarded-For {remote_host}
@@ -58,7 +57,7 @@ https://201.23.75.91 {
         }
     }
 
-    # Rota específica para API (opcional, se precisar expor)
+    # Rota específica para API
     handle /api/* {
         reverse_proxy api:8080 {
             header_up Host {host}
@@ -75,9 +74,4 @@ https://201.23.75.91 {
     handle_errors {
         respond "{err.status_code} {err.status_text}"
     }
-}
-
-# Redirect HTTP para HTTPS
-http://201.23.75.91 {
-    redir https://{host}{uri} permanent
 }
