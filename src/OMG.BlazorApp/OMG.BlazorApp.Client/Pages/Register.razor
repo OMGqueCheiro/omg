@@ -5,10 +5,31 @@
 @using OMG.Core.Request
 @using OMG.Core.Handler
 @inject IAuthHandler AuthHandler
+@inject IFeatureToggleHandler FeatureToggleHandler
 @inject NavigationManager Navigation
 @inject ISnackbar Snackbar
 
 <PageTitle>Cadastro - OMG que Cheiro</PageTitle>
+
+@if (!FeatureToggleHandler.IsUserRegistrationEnabled)
+{
+    <MudPaper Elevation="10" Class="pa-8" Style="border-radius: 16px;">
+        <MudText Typo="Typo.h4" Align="Align.Center" GutterBottom="true">
+            Cadastro Desabilitado
+        </MudText>
+        <MudText Typo="Typo.body1" Align="Align.Center" Class="mb-6" Color="Color.Secondary">
+            O cadastro de novos usuários está temporariamente desabilitado.
+        </MudText>
+        <MudButton Variant="Variant.Filled" 
+                   Color="Color.Primary" 
+                   FullWidth="true"
+                   OnClick="@(() => Navigation.NavigateTo("/login"))">
+            Voltar para Login
+        </MudButton>
+    </MudPaper>
+}
+else
+{
 
 <MudPaper Elevation="10" Class="pa-8" Style="border-radius: 16px;">
     <MudText Typo="Typo.h4" Align="Align.Center" GutterBottom="true">
@@ -84,6 +105,7 @@
             </MudButton>
         </MudForm>
     </MudPaper>
+}
 
 @code {
     private MudForm? form;

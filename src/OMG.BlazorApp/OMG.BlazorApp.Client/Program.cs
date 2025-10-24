@@ -6,6 +6,7 @@ using Blazored.LocalStorage;
 using OMG.BlazorApp.Client;
 using OMG.BlazorApp.Client.Handlers;
 using OMG.BlazorApp.Client.Authentication;
+using OMG.BlazorApp.Client.Services;
 using OMG.Core.Handler;
 using OMG.Core.Entities;
 
@@ -59,5 +60,8 @@ builder.Services.AddScoped<ICrudHandler<Aroma>>(sp =>
     new CrudHandler<Aroma>(sp.GetRequiredService<HttpClient>(), "Aroma"));
 builder.Services.AddScoped<ICrudHandler<Embalagem>>(sp => 
     new CrudHandler<Embalagem>(sp.GetRequiredService<HttpClient>(), "Embalagem"));
+
+// Feature Toggles
+builder.Services.AddSingleton<IFeatureToggleHandler, ClientFeatureToggleService>();
 
 await builder.Build().RunAsync();

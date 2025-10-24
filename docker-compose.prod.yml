@@ -42,6 +42,7 @@ services:
       - JwtSettings__SecretKey=${JWT_SECRET_KEY}
       - JwtSettings__Issuer=OMG.Api
       - JwtSettings__Audience=OMG.WebApp
+      - FeatureToggles__EnableUserRegistration=${ENABLE_USER_REGISTRATION:-false}
     depends_on:
       postgres:
         condition: service_healthy

@@ -24,6 +24,7 @@ Adicione os seguintes secrets:
 | `VM_USER` | `ubuntu` |
 | `POSTGRES_PASSWORD` | Senha forte para PostgreSQL |
 | `JWT_SECRET_KEY` | Chave JWT (mínimo 32 caracteres) |
+| `ENABLE_USER_REGISTRATION` | `false` (recomendado) ou `true` |
 
 ### 2️⃣ Setup Inicial da VM
 
@@ -96,6 +97,8 @@ Abra no navegador:
 
 Sua aplicação está no ar!
 
+> **⚠️ Nota sobre Cadastro**: Por padrão, o cadastro de novos usuários está **desabilitado** em produção por segurança. Para habilitar, veja [Feature Toggle - Cadastro](docs/FEATURE_TOGGLE_CADASTRO.md).
+
 ## 🔧 Comandos Úteis
 
 ```bash
@@ -120,6 +123,7 @@ docker compose up -d
 
 Para mais detalhes, troubleshooting e comandos avançados:
 - [Documentação de Deploy](docs/DEPLOYMENT.md)
+- [Feature Toggle - Cadastro de Usuários](docs/FEATURE_TOGGLE_CADASTRO.md)
 
 ## 🆘 Problemas?
 

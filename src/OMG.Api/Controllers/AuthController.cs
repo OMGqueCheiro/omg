@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OMG.Core.Handler;
 using OMG.Domain.Contracts;
 using OMG.Core.Request;
 
@@ -7,9 +8,10 @@ namespace OMG.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(IAuthService authService) : ControllerBase
+public class AuthController(IAuthService authService, IFeatureToggleHandler featureToggleHandler) : ControllerBase
 {
     private readonly IAuthService _authService = authService;
+    private readonly IFeatureToggleHandler _featureToggleHandler = featureToggleHandler;
 
     /// <summary>
     /// Registra um novo usuário no sistema
@@ -18,6 +20,9 @@ public class AuthController(IAuthService authService) : ControllerBase
     [AllowAnonymous]
     public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterRequest request)
     {
+        if (!_featureToggleHandler.IsUserRegistrationEnabled)
+            return NotFound(new { message = "Cadastro de usuários está desabilitado no momento." });
+
         var result = await _authService.RegisterAsync(request);
         
         if (!result.Success)

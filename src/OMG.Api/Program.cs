@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using OMG.Core.Base;
 using OMG.Infrastructure.DI;
 using System.Text;
 
@@ -17,6 +18,9 @@ public class Program
         
         // Add services to the container.
         builder.Services.AddControllers();
+
+        // Configurar Feature Toggles
+        builder.Services.Configure<FeatureToggles>(builder.Configuration.GetSection("FeatureToggles"));
 
         // Configurar serviços de domínio (OMG.Infrastructure)
         builder.Services.AddDomainServices();

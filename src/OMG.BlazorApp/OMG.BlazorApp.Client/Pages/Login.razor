@@ -5,6 +5,7 @@
 @using OMG.Core.Request
 @using OMG.Core.Handler
 @inject IAuthHandler AuthHandler
+@inject IFeatureToggleHandler FeatureToggleHandler
 @inject NavigationManager Navigation
 @inject ISnackbar Snackbar
 
@@ -55,14 +56,17 @@
                 }
             </MudButton>
 
-            <MudDivider Class="my-4" />
+            @if (FeatureToggleHandler.IsUserRegistrationEnabled)
+            {
+                <MudDivider Class="my-4" />
 
-            <MudButton Variant="Variant.Text" 
-                       Color="Color.Secondary" 
-                       FullWidth="true"
-                       OnClick="@(() => Navigation.NavigateTo("/register"))">
-                Não tem conta? Cadastre-se
-            </MudButton>
+                <MudButton Variant="Variant.Text" 
+                           Color="Color.Secondary" 
+                           FullWidth="true"
+                           OnClick="@(() => Navigation.NavigateTo("/register"))">
+                    Não tem conta? Cadastre-se
+                </MudButton>
+            }
         </MudForm>
     </MudPaper>
 

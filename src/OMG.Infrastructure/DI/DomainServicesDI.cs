@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using OMG.Core.Handler;
 using OMG.Domain.Contracts;
 using OMG.Domain.Contracts.Service;
 using OMG.Domain.Services;
@@ -23,6 +24,7 @@ public static class DomainServicesDI
         services.AddTransient<IClienteService, ClienteService>();
         services.AddTransient<IEmbalagemService, EmbalagemService>();
         services.AddTransient<IAuthService, AuthService>();
+        services.AddSingleton<IFeatureToggleHandler, FeatureToggleService>();
 
         return services;
     }

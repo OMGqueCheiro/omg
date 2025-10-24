@@ -81,6 +81,7 @@ jobs:
           cat > .env << EOF
           POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
           JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
+          ENABLE_USER_REGISTRATION=${{ secrets.ENABLE_USER_REGISTRATION || 'false' }}
           EOF
 
       - name: Setup SSH
