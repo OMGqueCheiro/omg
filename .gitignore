@@ -407,3 +407,8 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Environment variables (Production secrets)
+.env
+.env.local
+.env.production

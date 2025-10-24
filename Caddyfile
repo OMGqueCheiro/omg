@@ -1,0 +1,83 @@
+# Caddyfile para OMG - Produção
+# HTTPS com certificado self-signed para IP
+
+# Configuração global
+{
+    # Admin API desabilitada por segurança
+    admin off
+    
+    # Log em formato JSON
+    log {
+        format json
+    }
+}
+
+# Servidor principal - HTTPS com self-signed cert
+https://201.23.75.91 {
+    # TLS self-signed (vai mostrar warning no browser)
+    tls internal
+
+    # Headers de segurança
+    header {
+        # Security headers
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        
+        # Remove server info
+        -Server
+        -X-Powered-By
+    }
+
+    # Logs específicos
+    log {
+        output file /var/log/caddy/access.log
+        format json
+    }
+
+    # Reverse proxy para BlazorApp
+    reverse_proxy blazorapp:8080 {
+        # Health check
+        health_uri /health
+        health_interval 30s
+        health_timeout 10s
+        
+        # Headers para WebSocket e SignalR
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Forwarded-Host {host}
+        
+        # Timeouts
+        transport http {
+            dial_timeout 10s
+            response_header_timeout 30s
+        }
+    }
+
+    # Rota específica para API (opcional, se precisar expor)
+    handle /api/* {
+        reverse_proxy api:8080 {
+            header_up Host {host}
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    # Encode responses
+    encode gzip zstd
+
+    # Handle errors
+    handle_errors {
+        respond "{err.status_code} {err.status_text}"
+    }
+}
+
+# Redirect HTTP para HTTPS
+http://201.23.75.91 {
+    redir https://{host}{uri} permanent
+}

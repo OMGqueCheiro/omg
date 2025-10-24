@@ -1,0 +1,156 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}
+
+jobs:
+  build-and-push:
+    name: Build and Push Docker Images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    
+    strategy:
+      matrix:
+        include:
+          - project: OMG.Api
+            dockerfile: src/OMG.Api/Dockerfile
+            image: omg-api
+          - project: OMG.BlazorApp
+            dockerfile: src/OMG.BlazorApp/OMG.BlazorApp/Dockerfile
+            image: omg-blazorapp
+          - project: OMG.MigrationWorker
+            dockerfile: src/OMG.Worker/OMG.MigrationWorker/Dockerfile
+            image: omg-migrationworker
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_PREFIX }}/${{ matrix.image }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64
+
+  deploy:
+    name: Deploy to VM
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create .env file
+        run: |
+          cat > .env << EOF
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
+          EOF
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VM_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Copy files to VM
+        run: |
+          scp -i ~/.ssh/id_ed25519 docker-compose.prod.yml ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:/opt/omg/docker-compose.yml
+          scp -i ~/.ssh/id_ed25519 Caddyfile ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:/opt/omg/Caddyfile
+          scp -i ~/.ssh/id_ed25519 .env ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:/opt/omg/.env
+
+      - name: Deploy to VM
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          script: |
+            cd /opt/omg
+            
+            # Login no GitHub Container Registry
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+            # Pull das novas imagens
+            docker compose pull
+            
+            # Para containers antigos (se existirem)
+            docker compose down || true
+            
+            # Inicia novos containers
+            docker compose up -d
+            
+            # Aguarda containers iniciarem
+            sleep 10
+            
+            # Verifica status
+            docker compose ps
+            
+            # Limpa imagens antigas
+            docker image prune -af
+            
+            echo "✅ Deploy concluído com sucesso!"
+
+      - name: Verify deployment
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          script: |
+            cd /opt/omg
+            
+            echo "📊 Status dos containers:"
+            docker compose ps
+            
+            echo ""
+            echo "📝 Logs recentes do BlazorApp:"
+            docker compose logs --tail=20 blazorapp
+            
+            echo ""
+            echo "🌐 Aplicação disponível em:"
+            echo "   HTTP:  http://${{ secrets.VM_HOST }}"
+            echo "   HTTPS: https://${{ secrets.VM_HOST }}"
+
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -f ~/.ssh/id_ed25519
+          rm -f .env
