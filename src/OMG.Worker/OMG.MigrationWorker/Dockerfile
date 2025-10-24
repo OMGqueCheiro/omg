@@ -8,6 +8,8 @@ COPY ["OMG.sln", "./"]
 # Copy project files
 COPY ["src/OMG.Worker/OMG.MigrationWorker/OMG.MigrationWorker.csproj", "src/OMG.Worker/OMG.MigrationWorker/"]
 COPY ["src/OMG.Repository/OMG.Repository.csproj", "src/OMG.Repository/"]
+COPY ["src/OMG.Domain/OMG.Domain.csproj", "src/OMG.Domain/"]
+COPY ["src/OMG.Infrastructure/OMG.Infrastructure.csproj", "src/OMG.Infrastructure/"]
 COPY ["src/OMG.Core/OMG.Core.csproj", "src/OMG.Core/"]
 COPY ["src/OMG.UserIdentity/OMG.UserIdentity.csproj", "src/OMG.UserIdentity/"]
 COPY ["src/OMG.Aspire/OMG.ServiceDefaults/OMG.ServiceDefaults.csproj", "src/OMG.Aspire/OMG.ServiceDefaults/"]
@@ -18,6 +20,8 @@ RUN dotnet restore "src/OMG.Worker/OMG.MigrationWorker/OMG.MigrationWorker.cspro
 # Copy all source files
 COPY ["src/OMG.Worker/", "src/OMG.Worker/"]
 COPY ["src/OMG.Repository/", "src/OMG.Repository/"]
+COPY ["src/OMG.Domain/", "src/OMG.Domain/"]
+COPY ["src/OMG.Infrastructure/", "src/OMG.Infrastructure/"]
 COPY ["src/OMG.Core/", "src/OMG.Core/"]
 COPY ["src/OMG.UserIdentity/", "src/OMG.UserIdentity/"]
 COPY ["src/OMG.Aspire/OMG.ServiceDefaults/", "src/OMG.Aspire/OMG.ServiceDefaults/"]
