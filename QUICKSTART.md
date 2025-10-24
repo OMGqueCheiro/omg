@@ -89,7 +89,8 @@ docker compose logs -f
 
 Abra no navegador:
 - **HTTP**: http://201.23.75.91
-- **HTTPS**: https://201.23.75.91 (vai mostrar warning - aceite o certificado)
+
+> **Nota**: HTTPS foi desabilitado porque certificados self-signed em IPs causam erros SSL nos navegadores. Para HTTPS válido, configure um domínio próprio.
 
 ## 🎉 Pronto!
 
